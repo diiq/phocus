@@ -1,0 +1,63 @@
+{
+  "name": "phocus",
+  "version": "1.0.0",
+  "description": "React focus and action management, with keyboard shortcuts and help screens.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "test": "jest",
+    "build": "tsc"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/diiq/phocus.git"
+  },
+  "keywords": [
+    "react",
+    "focus",
+    "keyboard",
+    "hotkey",
+    "help"
+  ],
+  "author": "Sam Bleckley (sam@sambleckley.com)",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/diiq/phocus/issues"
+  },
+  "homepage": "https://github.com/diiq/phocus#readme",
+  "dependencies": {
+  },
+  "peerDependencies": {
+    "react": "^16"
+  },
+  "devDependencies": {
+    "@types/prop-types": "^15.5.5",
+    "@types/react": "^16.4.10",
+    "enzyme": "^3.4.1",
+    "enzyme-adapter-react-16": "^1.2.0",
+    "jest": "^23.5.0",
+    "prop-types": "^15.6.2",
+    "react": "^16.4.2",
+    "react-dom": "^16.4.2",
+    "typescript": "^3.0.1"
+  },
+  "jest": {
+    "modulePaths": [
+      "<rootDir>/src"
+    ],
+    "moduleFileExtensions": [
+      "js",
+      "jsx",
+      "ts",
+      "tsx"
+    ],
+    "setupTestFrameworkScriptFile": "<rootDir>/test-rig/test-setup.js",
+    "transform": {
+      ".(ts|tsx)": "<rootDir>/test-rig/preprocessor.js"
+    },
+    "testRegex": "src/.*\\.spec\\.(ts|tsx)$",
+    "globals": {
+      "PRODUCTION": false
+    }
+  }
+}
