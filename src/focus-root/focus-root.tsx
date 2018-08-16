@@ -1,42 +1,49 @@
-import * as React from 'react';
-import { ActionContextService, ContextStackEntry, ActionInContext } from '../action-context/action-context';
-import { ConstrainFocusService } from '../constrain-focus/constrain-focus';
-import { func } from 'prop-types';
+import * as React from "react";
+import {
+  ActionContextService,
+  ContextStackEntry,
+  ActionInContext
+} from "../action-context/action-context";
+import { ConstrainFocusService } from "../constrain-focus/constrain-focus";
+import { func } from "prop-types";
 
-export interface FocusRootProps { };
+export interface FocusRootProps {}
 
 // WARNING: The root context is ALWAYS in scope, and is NOT
 // blocked by opaque contexts! Replace it with help, etc.
 ActionContextService.addContext("phocus-root", {
   name: "Root",
   documentation: "",
-  actions: {
-  }
+  actions: {}
 });
 
 export class FocusRoot extends React.Component<FocusRootProps, {}> {
   static childContextTypes: {
-    setActionContext: React.Requireable<(...args: any[]) => any>,
-    actionInContext: React.Requireable<(...args: any[]) => any>
+    setActionContext: React.Requireable<(...args: any[]) => any>;
+    actionInContext: React.Requireable<(...args: any[]) => any>;
   } = {
     setActionContext: func,
     actionInContext: func
-  }
+  };
 
   state = {
     showHelp: false,
     contextStack: [] as ContextStackEntry[]
-  }
-  wasFocused: HTMLElement
-
-  removeHandler: () => void
+  };
 
   getChildContext() {
     return {
       setActionContext: () => this.setActionContext(),
-      actionInContext: (action: string, context?: string): ActionInContext | undefined => {
+      actionInContext: (
+        action: string,
+        context?: string
+      ): ActionInContext | undefined => {
         if (ActionContextService.hasAction("phocus-root", action)) {
-          return ActionContextService.actionInContext("phocus-root", action, this);
+          return ActionContextService.actionInContext(
+            "phocus-root",
+            action,
+            this
+          );
         } else {
           console.warn("Action called but not found:", action);
         }
@@ -65,10 +72,6 @@ export class FocusRoot extends React.Component<FocusRootProps, {}> {
   }
 
   render() {
-    return (
-      <div>
-        {this.props.children}
-      </div>
-    );
+    return <div>{this.props.children}</div>;
   }
 }

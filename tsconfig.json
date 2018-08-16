@@ -15,6 +15,11 @@
     "baseUrl": "./src",
     "sourceRoot": "./src",
     "noUnusedLocals": true,
-    "outDir": "./dist"
-  }
+    "outDir": "./dist",
+  },
+  "exclude": [
+    "**/*.spec.ts",
+    "**/*.spec.tsx",
+    "**/*.d.ts"
+  ]
 }

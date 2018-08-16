@@ -1,12 +1,12 @@
 export class ConstrainFocus {
-  stack: (() => HTMLElement)[] = []
+  stack: (() => HTMLElement | null)[] = [];
 
   start() {
-    document.addEventListener('blur', this.handler, true);
+    document.addEventListener("blur", this.handler as EventListener, true);
   }
 
   stop() {
-    document.removeEventListener('blur', this.handler, true);
+    document.removeEventListener("blur", this.handler as EventListener, true);
   }
 
   handler = (e: MouseEvent) => {
@@ -21,17 +21,18 @@ export class ConstrainFocus {
         (root.querySelector("[tabindex='0']") as HTMLElement).focus();
       }
     }
-  }
+  };
 
   focusable(element: HTMLElement) {
-    return this.noConstraints() || (this.currentRoot() && this.currentRoot().contains(element));
+    const root = this.currentRoot();
+    return this.noConstraints() || (root && root.contains(element));
   }
 
-  currentRoot(): HTMLElement {
+  currentRoot(): HTMLElement | null {
     return this.stack[0]();
   }
 
-  pushConstraint(root: () => HTMLElement) {
+  pushConstraint(root: () => HTMLElement | null) {
     this.stack.unshift(root);
   }
 

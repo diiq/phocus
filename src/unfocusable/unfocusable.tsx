@@ -1,24 +1,20 @@
-import * as React from 'react';
-import { Focus } from '../focus-mixin';
-import { ConstrainFocusService } from '../constrain-focus/constrain-focus';
-
-// CSS
-import { css, Style } from 'styles/css';
-
+import * as React from "react";
+import { Focus } from "../focus-mixin";
+import { ConstrainFocusService } from "../constrain-focus/constrain-focus";
 
 export interface UnfocusableProps {
-  css?: Style
-  context: string
-  contextComponent: any
-  constrainFocus?: boolean
-  role?: string
-  title?: string
-  id?: string
-};
+  style?: {};
+  context: string;
+  contextComponent: any;
+  constrainFocus?: boolean;
+  role?: string;
+  title?: string;
+  id?: string;
+}
 
 export class Unfocusable extends Focus<UnfocusableProps, {}> {
-  root: HTMLElement
-  removeFocusEvent: () => void
+  root: HTMLElement | null = null;
+  removeFocusEvent: () => void = () => {};
 
   componentWillMount() {
     if (this.props.constrainFocus) {
@@ -40,11 +36,17 @@ export class Unfocusable extends Focus<UnfocusableProps, {}> {
 
   setRoot = (r: HTMLDivElement) => {
     this.root = r;
-  }
+  };
 
   render() {
     return (
-      <div {...css(this.props.css) } ref={this.setRoot} role={this.props.role} title={this.props.title} id={this.props.id}>
+      <div
+        style={this.props.style}
+        ref={this.setRoot}
+        role={this.props.role}
+        title={this.props.title}
+        id={this.props.id}
+      >
         {this.props.children}
       </div>
     );

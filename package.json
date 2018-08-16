@@ -30,6 +30,7 @@
     "react": "^16"
   },
   "devDependencies": {
+    "@types/jasmine": "^2.8.8",
     "@types/prop-types": "^15.5.5",
     "@types/react": "^16.4.10",
     "enzyme": "^3.4.1",

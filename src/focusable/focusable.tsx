@@ -1,32 +1,32 @@
-import * as React from 'react';
-import { ActionContextService, Action, ActionEvent } from '../action-context/action-context';
-import { ConstrainFocusService } from '../constrain-focus/constrain-focus';
-import { Focus } from '../focus-mixin';
-
-// CSS
-import { styles, vars, css } from 'styles/css';
-
+import * as React from "react";
+import {
+  ActionContextService,
+  Action,
+  ActionEvent
+} from "../action-context/action-context";
+import { ConstrainFocusService } from "../constrain-focus/constrain-focus";
+import { Focus } from "../focus-mixin";
 
 export interface FocusableProps {
-  css?: {}
-  tabIndex?: number,
-  role?: string,
-  trigger?: (e: ActionEvent) => void,
-  context?: string,
-  contextComponent?: any,
-  focused?: boolean,
-  stealFocus?: () => void
-  mouseOverFocus?: boolean
-  clickFocus?: boolean
-  autofocus?: boolean
-  ariaLabel?: string
-  ariaValuetext?: string
-  title?: string
-  testName?: string
-  disabled?: boolean
-  hasPopup?: boolean
-  constrainFocus?: boolean
-};
+  style: {};
+  tabIndex?: number;
+  role?: string;
+  trigger?: (e: ActionEvent) => void;
+  context?: string;
+  contextComponent?: any;
+  focused?: boolean;
+  stealFocus?: () => void;
+  mouseOverFocus?: boolean;
+  clickFocus?: boolean;
+  autofocus?: boolean;
+  ariaLabel?: string;
+  ariaValuetext?: string;
+  title?: string;
+  testName?: string;
+  disabled?: boolean;
+  hasPopup?: boolean;
+  constrainFocus?: boolean;
+}
 
 ActionContextService.addContext("focusable", {
   hidden: true,
@@ -46,13 +46,13 @@ export class Focusable extends Focus<FocusableProps, {}> {
   static defaultProps = {
     mouseOverFocus: false,
     clickFocus: true,
-    tabIndex: 0,
+    tabIndex: 0
   };
 
-  root: HTMLDivElement
-  newFocus = false
-  eventFocusTarget: EventTarget
-  removeFocusEvent: () => void
+  root: HTMLDivElement | null = null;
+  newFocus = false;
+  eventFocusTarget: EventTarget | null = null;
+  removeFocusEvent: (() => void) | null = null;
 
   duringRecurse() {
     if (this.props.trigger) {
@@ -67,7 +67,7 @@ export class Focusable extends Focus<FocusableProps, {}> {
   }
 
   componentDidMount() {
-    if (this.props.focused || this.props.autofocus) {
+    if (this.root && (this.props.focused || this.props.autofocus)) {
       this.root.focus();
       this.setContext();
     }
@@ -88,7 +88,7 @@ export class Focusable extends Focus<FocusableProps, {}> {
   componentDidUpdate() {
     if (this.newFocus) {
       this.newFocus = false;
-      if (ConstrainFocusService.focusable(this.root)) {
+      if (this.root && ConstrainFocusService.focusable(this.root)) {
         this.root.focus();
         this.focus();
       }
@@ -104,26 +104,52 @@ export class Focusable extends Focus<FocusableProps, {}> {
   }
 
   refocus() {
-    this.root.focus();
+    this.root && this.root.focus();
   }
 
   enabled() {
     return this.props.trigger && !this.props.disabled;
   }
 
-  trigger(e?: ActionEvent) {
-    if (this.enabled()) this.props.trigger(e);
+  trigger(e: ActionEvent) {
+    if (this.enabled() && this.props.trigger) this.props.trigger(e);
   }
 
   setRoot = (r: HTMLDivElement) => {
     this.root = r;
-  }
+  };
+
+  mouseOver = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!this.props.mouseOverFocus) return;
+    this.root && this.root.focus();
+    e.stopPropagation();
+  };
+
+  click = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (this.enabled && this.props.trigger) {
+      this.trigger(e);
+      e.preventDefault();
+    }
+    e.stopPropagation();
+  };
+
+  mouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (this.props.clickFocus) return;
+    e.preventDefault();
+  };
+
+  onFocus = (e: React.FocusEvent<HTMLDivElement>) => {
+    if (e.target !== this.root) return;
+    this.focus();
+  };
 
   render() {
     return (
-      <div {...css(style.focusable,
-        { cursor: this.enabled() ? 'pointer' : null },
-        this.props.css) }
+      <div
+        style={{
+          cursor: this.enabled() ? "pointer" : "default",
+          ...this.props.style
+        }}
         className={this.props.testName}
         aria-label={this.props.ariaLabel}
         aria-valuetext={this.props.ariaValuetext}
@@ -132,35 +158,14 @@ export class Focusable extends Focus<FocusableProps, {}> {
         role={this.props.role}
         ref={this.setRoot}
         aria-haspopup={this.props.hasPopup}
-        onMouseOver={(e) => {
-          if (!this.props.mouseOverFocus) return;
-          this.root.focus();
-          e.stopPropagation();
-        }}
-        onClick={e => {
-          if (this.enabled && this.props.trigger) {
-            this.trigger(e);
-            e.preventDefault();
-          }
-          e.stopPropagation();
-        }}
-        onMouseDown={e => {
-          if (this.props.clickFocus) return;
-          e.preventDefault();
-        }}
-        onFocus={(e) => {
-          if (e.target !== this.root) return;
-          this.focus();
-        }}
-        tabIndex={this.props.tabIndex} >
+        onMouseOver={this.mouseOver}
+        onClick={this.click}
+        onMouseDown={this.mouseDown}
+        onFocus={this.onFocus}
+        tabIndex={this.props.tabIndex}
+      >
         {this.props.children}
       </div>
     );
   }
 }
-
-let style = styles({
-  focusable: {
-    ...vars.focus
-  }
-});

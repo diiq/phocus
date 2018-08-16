@@ -1,35 +1,38 @@
-import * as React from 'react';
-import { Hotkey } from '../hotkey/hotkey';
+import * as React from "react";
+import { Hotkey } from "../hotkey/hotkey";
 
-export type Key = string
+export type Key = string;
 export interface Remapping {
-  action: string,
-  context: string,
-  mapping: string
+  action: string;
+  context: string;
+  mapping: string;
 }
 
 // A ContextBlueprint describes a set of actions that can all be taken in the
 // same context in the app. It's also used to store help messages for these
 // contexts.
 export interface ContextBlueprint {
-  name?: string
-  documentation?: JSX.Element | string
+  name?: string;
+  documentation?: JSX.Element | string;
   // Usually, you can still call actions from contexts further out in the stack
   // but if a context is opaque, it blocks all keyboard shortcuts from the rest
   // of the stack.
-  opaque?: boolean
-  hidden?: boolean
-  actions: { [id: string]: Action }
+  opaque?: boolean;
+  hidden?: boolean;
+  actions: { [id: string]: Action };
 }
 
 // Contexts nest -- a entry in the stack describes a context and the object the
 // context
 export interface ContextStackEntry {
-  context: string
-  argument: any
+  context: string;
+  argument: any;
 }
 
-export type ActionEvent = React.KeyboardEvent<HTMLElement> | React.MouseEvent<HTMLElement> | KeyboardEvent
+export type ActionEvent =
+  | React.KeyboardEvent<HTMLElement>
+  | React.MouseEvent<HTMLElement>
+  | KeyboardEvent;
 
 // Actions have one free argument; when a context is pushed onto the stack, that
 // argument is stored along with it. An ActionInContext closes over the argument
@@ -40,7 +43,7 @@ export class ActionInContext {
     private contextName: string,
     private argument: any,
     private service: ActionContextServiceClass
-  ) { }
+  ) {}
 
   get hasArgument() {
     return !!this.argument;
@@ -58,23 +61,23 @@ export class ActionInContext {
 // An action is anything you can do in a given context. It can be mapped to a
 // keyboard shortcut.
 export class Action {
-  remappedKey: Key | null = null
-  name: string
-  shortDocumentation: string
-  searchTerms: string[]
-  actOn: (argument: any, e?: ActionEvent) => void
-  defaultKeys: Key[]
+  remappedKey: Key | null = null;
+  name: string;
+  shortDocumentation: string;
+  searchTerms: string[];
+  actOn: (argument: any, e?: ActionEvent) => void;
+  defaultKeys: Key[];
 
   // If true, hide from the action palette
-  hidden: boolean
+  hidden: boolean;
 
   constructor(description: {
-    name: string,
-    shortDocumentation: string,
-    searchTerms: string[],
-    actOn: (argument: any, e?: ActionEvent) => void,
-    defaultKeys: Key[],
-    hidden?: boolean
+    name: string;
+    shortDocumentation: string;
+    searchTerms: string[];
+    actOn: (argument: any, e?: ActionEvent) => void;
+    defaultKeys: Key[];
+    hidden?: boolean;
   }) {
     this.remappedKey = null;
     this.name = description.name;
@@ -85,7 +88,7 @@ export class Action {
     this.hidden = description.hidden || false;
   }
   get keys() {
-    if (this.remappedKey) return [this.remappedKey]
+    if (this.remappedKey) return [this.remappedKey];
     return this.defaultKeys;
   }
 }
@@ -93,8 +96,8 @@ export class Action {
 export class ActionContextServiceClass {
   contextStack: ContextStackEntry[];
   newContextStack: ContextStackEntry[];
-  contexts: {[id: string]: ContextBlueprint} = {}
-  remappingDirty: boolean;
+  contexts: { [id: string]: ContextBlueprint } = {};
+  remappingDirty: boolean = false;
 
   constructor() {
     this.newContextStack = [];
@@ -107,7 +110,6 @@ export class ActionContextServiceClass {
     }
     this.contexts[name] = context;
   }
-
 
   /* These three act together; make a new context, fill it
    * (front-to-back, most-focused to least), and then swap out the new
@@ -149,10 +151,10 @@ export class ActionContextServiceClass {
 
   /** Collect all user-remapped actions so that they can be saved */
   get currentRemapping(): Remapping[] {
-    const ll = Object.keys(this.contexts).map((contextName) => {
+    const ll = Object.keys(this.contexts).map(contextName => {
       const context = this.contexts[contextName];
       if (!context) return; // TODO assertion, probs
-      return Object.keys(context.actions).map((actionName) => {
+      return Object.keys(context.actions).map(actionName => {
         const action = context.actions[actionName];
         if (!action.remappedKey) return;
         return {
@@ -169,9 +171,9 @@ export class ActionContextServiceClass {
     if (!remapping) return;
     remapping.map(m => {
       const context = this.contexts[m.context];
-      const action = context.actions[m.action]
-      this.remapAction(action, m.mapping)
-    })
+      const action = context.actions[m.action];
+      this.remapAction(action, m.mapping);
+    });
   }
 
   /** Collect actions, along with the appropriate `this`, from all
@@ -185,7 +187,10 @@ export class ActionContextServiceClass {
     for (var i = 0; i < contextStack.length; i++) {
       let contextEntry = contextStack[i];
       let context = this.contexts[contextEntry.context];
-      if (!context) { console.error("Unknown action context:", contextEntry.context); return; }
+      if (!context) {
+        console.error("Unknown action context:", contextEntry.context);
+        return;
+      }
       let actionsByName = context.actions;
       let actions = Object.keys(actionsByName).map(name => {
         return new ActionInContext(
@@ -193,8 +198,8 @@ export class ActionContextServiceClass {
           contextEntry.context,
           contextEntry.argument,
           this
-        )
-      })
+        );
+      });
       accum = accum.concat(actions);
       if (context.opaque) {
         // Keep the root context -- it has universal commands in it
@@ -226,30 +231,22 @@ export class ActionContextServiceClass {
 
   hasAction(contextName: string, action: string) {
     const context = this.contexts[contextName];
-    return context && !!context.actions[action]
+    return context && !!context.actions[action];
   }
 
-  actionInContext(
-    contextName: string,
-    actionName: string,
-    argument: any) {
+  actionInContext(contextName: string, actionName: string, argument: any) {
     const context = this.contexts[contextName];
     if (!context) return;
     const action = context.actions[actionName];
-    return new ActionInContext(
-      action,
-      contextName,
-      argument,
-      this
-    )
+    return new ActionInContext(action, contextName, argument, this);
   }
 
   actor(
     contextName: string,
     action: string,
     argument: any,
-    propogate: boolean = false) {
-
+    propogate: boolean = false
+  ) {
     return (e?: ActionEvent) => {
       const context = this.contexts[contextName];
       if (!context) return;
@@ -260,18 +257,23 @@ export class ActionContextServiceClass {
       }
     };
   }
-};
-
-export const ActionContextService = new ActionContextServiceClass()
-
-export const act = (context: string, action: string, argument: any, propogate: boolean = false) => {
-  return ActionContextService.actor(context, action, argument, propogate);
 }
+
+export const ActionContextService = new ActionContextServiceClass();
+
+export const act = (
+  context: string,
+  action: string,
+  argument: any,
+  propogate: boolean = false
+) => {
+  return ActionContextService.actor(context, action, argument, propogate);
+};
 
 // In an opaque context, pass this action up-stack
 export function pass(actionName: string) {
   return (c: any) => {
     const action = c.context.actionInContext(actionName);
     if (action) action.act();
-  }
+  };
 }
