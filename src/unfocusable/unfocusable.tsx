@@ -3,7 +3,7 @@ import { Focus } from "../focus-mixin";
 import { ConstrainFocusService } from "../constrain-focus/constrain-focus";
 
 export interface UnfocusableProps {
-  style?: {};
+  style?: React.CSSProperties;
   context: string;
   contextComponent: any;
   constrainFocus?: boolean;

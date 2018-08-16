@@ -8,7 +8,7 @@ import { ConstrainFocusService } from "../constrain-focus/constrain-focus";
 import { Focus } from "../focus-mixin";
 
 export interface FocusableProps {
-  style: {};
+  style?: React.CSSProperties;
   tabIndex?: number;
   role?: string;
   trigger?: (e: ActionEvent) => void;
