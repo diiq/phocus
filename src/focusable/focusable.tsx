@@ -9,6 +9,7 @@ import { Focus } from "../focus-mixin";
 
 export interface FocusableProps {
   style?: React.CSSProperties;
+  className?: string;
   tabIndex?: number;
   role?: string;
   trigger?: (e: ActionEvent) => void;
@@ -22,7 +23,6 @@ export interface FocusableProps {
   ariaLabel?: string;
   ariaValuetext?: string;
   title?: string;
-  testName?: string;
   disabled?: boolean;
   hasPopup?: boolean;
   constrainFocus?: boolean;
@@ -150,7 +150,7 @@ export class Focusable extends Focus<FocusableProps, {}> {
           cursor: this.enabled() ? "pointer" : "default",
           ...this.props.style
         }}
-        className={this.props.testName}
+        className={this.props.className}
         aria-label={this.props.ariaLabel}
         aria-valuetext={this.props.ariaValuetext}
         aria-disabled={this.props.disabled}

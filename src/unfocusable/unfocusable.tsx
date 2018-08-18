@@ -4,6 +4,7 @@ import { ConstrainFocusService } from "../constrain-focus/constrain-focus";
 
 export interface UnfocusableProps {
   style?: React.CSSProperties;
+  className?: string;
   context: string;
   contextComponent: any;
   constrainFocus?: boolean;
@@ -42,6 +43,7 @@ export class Unfocusable extends Focus<UnfocusableProps, {}> {
     return (
       <div
         style={this.props.style}
+        className={this.props.className}
         ref={this.setRoot}
         role={this.props.role}
         title={this.props.title}
