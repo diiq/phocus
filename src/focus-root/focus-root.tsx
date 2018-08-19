@@ -7,7 +7,9 @@ import {
 import { ConstrainFocusService } from "../constrain-focus/constrain-focus";
 import { func } from "prop-types";
 
-export interface FocusRootProps {}
+export interface FocusRootProps {
+  contextComponent?: any
+}
 
 // WARNING: The root context is ALWAYS in scope, and is NOT
 // blocked by opaque contexts! Replace it with help, etc.
@@ -42,7 +44,7 @@ export class FocusRoot extends React.Component<FocusRootProps, {}> {
           return ActionContextService.actionInContext(
             "phocus-root",
             action,
-            this
+            this.props.contextComponent || this
           );
         } else {
           console.warn("Action called but not found:", action);
