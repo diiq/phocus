@@ -29,7 +29,7 @@ export class ConstrainFocus {
   }
 
   currentRoot(): HTMLElement | null {
-    return this.stack[0]();
+    return this.stack[0] && this.stack[0]();
   }
 
   pushConstraint(root: () => HTMLElement | null) {
