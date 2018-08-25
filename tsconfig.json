@@ -2,7 +2,7 @@
   "compilerOptions": {
     "declaration": true,
     "target": "es5",
-    "module": "amd",
+    "module": "commonjs",
     "strict": true,
     "moduleResolution": "node",
     "sourceMap": true,
