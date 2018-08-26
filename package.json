@@ -1,6 +1,6 @@
 {
   "name": "phocus",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "React focus and action management, with keyboard shortcuts and help screens.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
