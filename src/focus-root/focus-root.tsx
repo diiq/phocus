@@ -54,7 +54,7 @@ export class FocusRoot extends React.Component<FocusRootProps, {}> {
   }
 
   setActionContext() {
-    ActionContextService.pushNewContext("phocus-root", this);
+    ActionContextService.pushNewContext("phocus-root", this.props.contextComponent || this);
     ActionContextService.enterNewContext();
   }
 
