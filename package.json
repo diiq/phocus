@@ -1,6 +1,6 @@
 {
   "name": "phocus",
-  "version": "0.0.7",
+  "version": "0.1.0",
   "description": "React focus and action management, with keyboard shortcuts and help screens.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -27,12 +27,14 @@
   "homepage": "https://github.com/diiq/phocus#readme",
   "dependencies": {},
   "peerDependencies": {
-    "react": "^16"
+    "react": "^16",
+    "react-dom": "^16"
   },
   "devDependencies": {
     "@types/jasmine": "^2.8.8",
     "@types/prop-types": "^15.5.5",
     "@types/react": "^16.4.10",
+    "@types/react-dom": "^16",
     "enzyme": "^3.4.1",
     "enzyme-adapter-react-16": "^1.2.0",
     "jest": "^23.5.0",

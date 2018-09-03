@@ -5,7 +5,7 @@ import {
   ActionEvent
 } from "../action-context/action-context";
 import { ConstrainFocusService } from "../constrain-focus/constrain-focus";
-import { Focus } from "../focus-mixin";
+import { makeNestableFocusable } from "../focus-mixin";
 
 export interface FocusableProps {
   style?: React.CSSProperties;
@@ -42,12 +42,13 @@ ActionContextService.addContext("focusable", {
   }
 });
 
-export class Focusable extends Focus<FocusableProps, {}> {
+class FocusableClass extends React.Component<FocusableProps, {}> {
   static defaultProps = {
     mouseOverFocus: false,
     clickFocus: true,
     tabIndex: 0
   };
+  setContext = () => {}
 
   root: HTMLDivElement | null = null;
   newFocus = false;
@@ -169,3 +170,5 @@ export class Focusable extends Focus<FocusableProps, {}> {
     );
   }
 }
+
+export const Focusable = makeNestableFocusable(FocusableClass);

@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Focus } from "../focus-mixin";
+import { makeNestableFocusable } from "../focus-mixin";
 import { ConstrainFocusService } from "../constrain-focus/constrain-focus";
 
 export interface UnfocusableProps {
@@ -13,7 +13,7 @@ export interface UnfocusableProps {
   id?: string;
 }
 
-export class Unfocusable extends Focus<UnfocusableProps, {}> {
+class UnfocusableClass extends React.Component<UnfocusableProps, {}> {
   root: HTMLElement | null = null;
   removeFocusEvent: () => void = () => {};
 
@@ -54,3 +54,5 @@ export class Unfocusable extends Focus<UnfocusableProps, {}> {
     );
   }
 }
+
+export const Unfocusable = makeNestableFocusable(UnfocusableClass);

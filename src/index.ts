@@ -1,5 +1,5 @@
 export { Focusable } from "./focusable/focusable";
-export { Focus } from "./focus-mixin";
+export { makeFocusable, makeNestableFocusable } from "focus-mixins";
 export { Unfocusable } from "./unfocusable/unfocusable";
 export {
   Action,
