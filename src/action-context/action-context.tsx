@@ -43,6 +43,7 @@ export class ActionInContext {
     public action: Action,
     private contextName: string,
     private argument: any,
+    private element: HTMLElement | undefined,
     private service: ActionContextServiceClass
   ) {}
 
@@ -51,7 +52,7 @@ export class ActionInContext {
   }
 
   act(e?: ActionEvent) {
-    return this.action.actOn(this.argument, e);
+    return this.action.actOn(this.argument, this.element, e);
   }
 
   context() {
@@ -66,7 +67,7 @@ export class Action {
   name: string;
   shortDocumentation: string;
   searchTerms: string[];
-  actOn: (argument: any, e?: ActionEvent) => void;
+  actOn: (argument: any, element?: HTMLElement, e?: ActionEvent) => void;
   defaultKeys: Key[];
 
   // If true, hide from the action palette
@@ -76,7 +77,7 @@ export class Action {
     name: string;
     shortDocumentation: string;
     searchTerms: string[];
-    actOn: (argument: any, e?: ActionEvent) => void;
+    actOn: (argument: any, element?: HTMLElement, e?: ActionEvent) => void;
     defaultKeys: Key[];
     hidden?: boolean;
   }) {
@@ -88,23 +89,29 @@ export class Action {
     this.defaultKeys = description.defaultKeys;
     this.hidden = description.hidden || false;
   }
+
   get keys() {
     if (this.remappedKey) return [this.remappedKey];
     return this.defaultKeys;
   }
+
+  label() {
+    const key = this.keys[0];
+    if (key) {
+      return `${this.name} (${key})`;
+    } else {
+      return this.name;
+    }
+  }
 }
 
 export class ActionContextServiceClass {
-  pageContext: ContextStackEntry | null;
   contextStack: ContextStackEntry[];
-  newContextStack: ContextStackEntry[];
   contexts: { [id: string]: ContextBlueprint } = {};
   remappingDirty: boolean = false;
 
   constructor() {
-    this.newContextStack = [];
     this.contextStack = [];
-    this.pageContext = null;
   }
 
   addContext(name: string, context: ContextBlueprint) {
@@ -114,27 +121,25 @@ export class ActionContextServiceClass {
     this.contexts[name] = context;
   }
 
-  /* These three act together; make a new context, fill it
-   * (front-to-back, most-focused to least), and then swap out the new
-   * context with the old one. */
-  newContext() {
-    this.newContextStack = [];
-  }
-
-  pushNewContext(name: string, argument: any) {
-    this.newContextStack.push({
-      context: name,
-      argument: argument
-    });
-  }
-
-  enterNewContext() {
-    this.contextStack = this.newContextStack.slice();
-    this.newContextStack = [];
-  }
-
   get currentContext() {
     return this.contextStack[0].context;
+  }
+
+  private getContextStack(elt: HTMLElement | null): ContextStackEntry[] {
+    if (!elt) return [];
+    let stack = this.getContextStack(elt.parentElement)
+    if (elt.dataset.phocusContextName) {
+      stack.unshift({
+        context: elt.dataset.phocusContextName,
+        argument: elt.dataset.phocusContextArgument,
+        element: elt
+      });
+    }
+    return stack;
+  }
+
+  setContext(elt: HTMLElement) {
+    this.contextStack = this.getContextStack(elt);
   }
 
   /** Give a user-specific key command for an action. */
@@ -179,19 +184,8 @@ export class ActionContextServiceClass {
     });
   }
 
-  setPageContext(name: string, argument: any) {
-    this.pageContext = {
-      context: name,
-      argument: argument
-    };
-  }
-
-  clearPageContext() {
-    this.pageContext = null;
-  }
-
   /** Collect actions, along with the appropriate argument, from all
-   * contexts in the active stack, most recent context first */
+   * contexts in the active stack, smallest context first */
   get availableActions() {
     return this.actionsInContexts(this.contextStack);
   }
@@ -212,12 +206,6 @@ export class ActionContextServiceClass {
       }
     }
 
-    // A page-level context always applies, even through opacity (I think?)
-    if (this.pageContext) {
-      let actions = this.actionsFromContext(this.pageContext);
-      accum = accum.concat(actions);
-    }
-
     return accum;
   }
 
@@ -229,6 +217,7 @@ export class ActionContextServiceClass {
         actionsByName[name],
         contextEntry.context,
         contextEntry.argument,
+        contextEntry.element,
         this
       );
     });
@@ -248,7 +237,6 @@ export class ActionContextServiceClass {
   }
 
   handleKeypress(event: KeyboardEvent) {
-    console.log(this.contextStack)
     const key = Hotkey.canonicalKeyFromEvent(event);
     const keyAction = this.actionForKeypress(key);
     if (keyAction) {
@@ -258,51 +246,27 @@ export class ActionContextServiceClass {
     }
   }
 
-  hasAction(contextName: string, action: string) {
-    const context = this.contexts[contextName];
-    return context && !!context.actions[action];
+  actionForName(name: string) {
+    const contextEntry = this.contextStack.find(c => name in this.contextFor(c).actions)
+    if (!contextEntry) return;
+    const context = this.contextFor(contextEntry)
+    return new ActionInContext(
+      context.actions[name],
+      contextEntry.context,
+      contextEntry.argument,
+      contextEntry.element,
+      this
+    )
   }
 
-  actionInContext(contextName: string, actionName: string, argument: any) {
-    const context = this.contexts[contextName];
-    if (!context) return;
-    const action = context.actions[actionName];
-    return new ActionInContext(action, contextName, argument, this);
-  }
-
-  actor(
-    contextName: string,
-    action: string,
-    argument: any,
-    propogate: boolean = false
-  ) {
-    return (e?: ActionEvent) => {
-      const context = this.contexts[contextName];
-      if (!context) return;
-      context.actions[action].actOn(argument, e);
-      if (!propogate && e) {
-        e.stopPropagation();
-        e.preventDefault();
-      }
-    };
+  triggerAction(name: string, e?: ActionEvent) {
+    const action = this.actionForName(name)
+    if (!action) {
+      console.error(`No action found for name ${name}.`, this.contextStack);
+      return;
+    }
+    action.act(e)
   }
 }
 
 export const ActionContextService = new ActionContextServiceClass();
-
-export const act = (
-  context: string,
-  action: string,
-  argument: any,
-  propogate: boolean = false
-) => {
-  return ActionContextService.actor(context, action, argument, propogate);
-};
-
-// In an opaque context, pass this action up-stack
-export function pass(actionName: string) {
-  return (c: any) => {
-    const action = c.context.actionInContext(actionName);
-    if (action) action.act();
-  };
-}
