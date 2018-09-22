@@ -13,7 +13,7 @@ export interface Remapping {
 // contexts.
 export interface ContextBlueprint {
   name?: string;
-  documentation?: JSX.Element | string;
+  documentation?: string; // TODO how to do rich text?
   // Usually, you can still call actions from contexts further out in the stack
   // but if a context is opaque, it blocks all keyboard shortcuts from the rest
   // of the stack.
@@ -26,7 +26,8 @@ export interface ContextBlueprint {
 // context
 export interface ContextStackEntry {
   context: string;
-  argument: any;
+  argument: string | undefined;
+  element: HTMLElement;
 }
 
 export type ActionEvent =

@@ -1,3 +1,8 @@
+// From 'The Rule of Phocus':
+// 4. Some states only allow focus among a subset of all focusable elements (modals, menus)
+//     4.1. This subset is always contained in exactly one branch of the element tree
+//
+
 export class ConstrainFocus {
   stack: (() => HTMLElement | null)[] = [];
 
