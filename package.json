@@ -28,7 +28,8 @@
   "dependencies": {},
   "peerDependencies": {
     "react": "^16",
-    "react-dom": "^16"
+    "react-dom": "^16",
+    "prop-types": "^15.5.5"
   },
   "devDependencies": {
     "@types/jasmine": "^2.8.8",

@@ -103,9 +103,18 @@ This wrapper component affects the context stack without being able to take focu
 * title?: string;
 * id?: string;
 
-### `Focus`
+### `makeFocusable` and `makeNestableFocusable`
 
-A mixin for making new custom components like `Focusable` and `Unfocusable`.
+Combinators for making new custom components like `Focusable` and `Unfocusable`.
+
+`makeFocusable(YourComponentClass, context)` makes a focusable component, but the context will only be active when that *exact* element is focused; focusable children will not share the context. This is useful for links.
+
+**Props added to your component (all optional)**:
+* `focused`: boolean; component will be focused when true. It's up to you to ensure only one component is focused at a time (using `stealFocus`); otherwise the last item in the renderer's descent will win. DO NOT USE unless you're controlling focus programmatically.
+* `stealFocus`: a function, called when the user requests this item to be focused. DO NOT USE unless also using `focused`; in that case, use to ensure only one focusable component has focused={true} at any time.
+* autofocus?: boolean; when true, component will focus when first mounted.
+
+`makeNestableFocusable(YourComponentClass)` makes a focusable component whose children are also inside its context; its context is a prop.
 
 
 ## Example usage

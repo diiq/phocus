@@ -94,6 +94,7 @@ export class Action {
 }
 
 export class ActionContextServiceClass {
+  pageContext: ContextStackEntry | null;
   contextStack: ContextStackEntry[];
   newContextStack: ContextStackEntry[];
   contexts: { [id: string]: ContextBlueprint } = {};
@@ -102,6 +103,7 @@ export class ActionContextServiceClass {
   constructor() {
     this.newContextStack = [];
     this.contextStack = [];
+    this.pageContext = null;
   }
 
   addContext(name: string, context: ContextBlueprint) {
@@ -176,38 +178,63 @@ export class ActionContextServiceClass {
     });
   }
 
-  /** Collect actions, along with the appropriate `this`, from all
+  setPageContext(name: string, argument: any) {
+    this.pageContext = {
+      context: name,
+      argument: argument
+    };
+  }
+
+  clearPageContext() {
+    this.pageContext = null;
+  }
+
+  /** Collect actions, along with the appropriate argument, from all
    * contexts in the active stack, most recent context first */
   get availableActions() {
     return this.actionsInContexts(this.contextStack);
   }
 
-  actionsInContexts(contextStack: ContextStackEntry[]) {
+  private actionsInContexts(contextStack: ContextStackEntry[]) {
     var accum: ActionInContext[] = [];
     for (var i = 0; i < contextStack.length; i++) {
       let contextEntry = contextStack[i];
-      let context = this.contexts[contextEntry.context];
+      let context = this.contextFor(contextEntry);
       if (!context) {
         console.error("Unknown action context:", contextEntry.context);
         return;
       }
-      let actionsByName = context.actions;
-      let actions = Object.keys(actionsByName).map(name => {
-        return new ActionInContext(
-          actionsByName[name],
-          contextEntry.context,
-          contextEntry.argument,
-          this
-        );
-      });
+      let actions = this.actionsFromContext(contextEntry);
       accum = accum.concat(actions);
       if (context.opaque) {
-        // Keep the root context -- it has universal commands in it
-        i = contextStack.length - 2;
-        continue;
+        break;
       }
     }
+
+    // A page-level context always applies, even through opacity (I think?)
+    if (this.pageContext) {
+      let actions = this.actionsFromContext(this.pageContext);
+      accum = accum.concat(actions);
+    }
+
     return accum;
+  }
+
+  private actionsFromContext(contextEntry: ContextStackEntry) {
+    let context = this.contextFor(contextEntry);
+    let actionsByName = context.actions;
+    return Object.keys(actionsByName).map(name => {
+      return new ActionInContext(
+        actionsByName[name],
+        contextEntry.context,
+        contextEntry.argument,
+        this
+      );
+    });
+  }
+
+  private contextFor(contextEntry: ContextStackEntry) {
+    return this.contexts[contextEntry.context];
   }
 
   actionForKeypress(key: Key) {
@@ -220,6 +247,7 @@ export class ActionContextServiceClass {
   }
 
   handleKeypress(event: KeyboardEvent) {
+    console.log(this.contextStack)
     const key = Hotkey.canonicalKeyFromEvent(event);
     const keyAction = this.actionForKeypress(key);
     if (keyAction) {

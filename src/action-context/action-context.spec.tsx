@@ -99,11 +99,11 @@ describe("ActionContextService", () => {
     );
 
     // Pushing an opaque context prevents the use of bindings lower in the stack
-    // But keeps the root context
+    // But keeps the page context
     ActionContextService.newContext();
     ActionContextService.pushNewContext("opaque", {});
     ActionContextService.pushNewContext("project", {});
-    ActionContextService.pushNewContext("root", {});
+    ActionContextService.setPageContext("root", {});
     ActionContextService.enterNewContext();
     expect(ActionContextService.actionForKeypress("Control+p")).toBeUndefined();
     expect(ActionContextService.actionForKeypress("Control+o").action).toBe(

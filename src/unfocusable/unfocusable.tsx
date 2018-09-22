@@ -1,8 +1,10 @@
 import * as React from "react";
-import { makeNestableFocusable } from "../focus-mixin";
-import { ConstrainFocusService } from "../constrain-focus/constrain-focus";
+import {
+  makeFocusContext,
+  FocusContextProps
+} from "../mixins/make-focus-context";
 
-export interface UnfocusableProps {
+export interface UnfocusableClassProps {
   style?: React.CSSProperties;
   className?: string;
   context: string;
@@ -13,38 +15,14 @@ export interface UnfocusableProps {
   id?: string;
 }
 
-class UnfocusableClass extends React.Component<UnfocusableProps, {}> {
-  root: HTMLElement | null = null;
-  removeFocusEvent: () => void = () => {};
+export type UnfocusableProps = UnfocusableClassProps & FocusContextProps;
 
-  componentWillMount() {
-    if (this.props.constrainFocus) {
-      ConstrainFocusService.pushConstraint(() => this.root);
-    }
-  }
-
-  componentWillReceiveProps(props: UnfocusableProps) {
-    if (!this.props.constrainFocus && props.constrainFocus) {
-      ConstrainFocusService.pushConstraint(() => this.root);
-    } else if (this.props.constrainFocus && !props.constrainFocus) {
-      ConstrainFocusService.popConstraint();
-    }
-  }
-
-  componentWillUnmount() {
-    if (this.props.constrainFocus) ConstrainFocusService.popConstraint();
-  }
-
-  setRoot = (r: HTMLDivElement) => {
-    this.root = r;
-  };
-
+class UnfocusableClass extends React.Component<UnfocusableClassProps> {
   render() {
     return (
       <div
         style={this.props.style}
         className={this.props.className}
-        ref={this.setRoot}
         role={this.props.role}
         title={this.props.title}
         id={this.props.id}
@@ -55,4 +33,4 @@ class UnfocusableClass extends React.Component<UnfocusableProps, {}> {
   }
 }
 
-export const Unfocusable = makeNestableFocusable(UnfocusableClass);
+export const Unfocusable = makeFocusContext<UnfocusableClassProps>(UnfocusableClass);

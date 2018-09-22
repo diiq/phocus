@@ -1,5 +1,7 @@
 export { Focusable } from "./focusable/focusable";
-export { makeFocusable, makeNestableFocusable } from "focus-mixins";
+export { makeFocusable } from "./mixins/make-focusable";
+export { makeTriggerable } from "./mixins/make-triggerable";
+export { makeFocusContext } from "./mixins/make-focus-context";
 export { Unfocusable } from "./unfocusable/unfocusable";
 export {
   Action,
