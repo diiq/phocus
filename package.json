@@ -26,23 +26,13 @@
   },
   "homepage": "https://github.com/diiq/phocus#readme",
   "dependencies": {},
-  "peerDependencies": {
-    "react": "^16",
-    "react-dom": "^16",
-    "prop-types": "^15.5.5"
-  },
+  "peerDependencies": {},
   "devDependencies": {
     "@types/jest": "^23.3.2",
-    "@types/prop-types": "^15.5.5",
-    "@types/react": "^16.4.10",
-    "@types/react-dom": "^16",
-    "enzyme": "^3.4.1",
-    "enzyme-adapter-react-16": "^1.2.0",
+    "@types/jsdom": "^11.12.0",
     "jest": "^23.6.0",
     "jest-cli": "^23.6.0",
-    "prop-types": "^15.6.2",
-    "react": "^16.4.2",
-    "react-dom": "^16.4.2",
+    "mutationobserver-shim": "^0.3.2",
     "ts-jest": "^23.10.1",
     "typescript": "^3.0.1"
   }

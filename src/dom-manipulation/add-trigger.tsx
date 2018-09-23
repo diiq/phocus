@@ -45,6 +45,6 @@ export function addTrigger(elt: HTMLElement) {
   }
 }
 
-export function removeTrigger(elt: HTMLElement, action: string) {
+export function removeTrigger(elt: HTMLElement) {
   elt.removeEventListener("click", onClick);
 }
