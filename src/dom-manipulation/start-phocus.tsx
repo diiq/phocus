@@ -1,7 +1,7 @@
 import { ActionContextService } from "../action-context/action-context";
 import { dispatch, undispatch } from "./dispatch";
 import { addTrigger, removeTrigger } from "./add-trigger";
-import { ConstrainFocusService } from "constrain-focus/constrain-focus";
+import { ConstrainFocusService } from "../constrain-focus/constrain-focus";
 
 function setFocusedContext() {
   let focused = document.activeElement;
