@@ -43,7 +43,7 @@ All remaining elements are ignored as non-focusable, non-interactive, non-contex
 
 ## Usage
 
-## `ActionContextSevice` and `Action`
+### `ActionContextSevice` and `Action`
 
 An action context is a set of actions which are available only when focus is within a specific part of the page. A context consists of a globally unique name, help text, and a list of actions. Each action has a name, help text, default hot keys, and an implementation.
 
@@ -94,6 +94,8 @@ ActionContextService.addContext("feature-thumbnail", {
 });
 ```
 
+### Markup
+
 In your markup, use attributes to tie your context to the DOM.
 
 `data-phocus-context-argument` defines the first argument that will be passed to any action called within the context; in this case, the actions are all expecting an id string.
@@ -107,6 +109,8 @@ In your markup, use attributes to tie your context to the DOM.
   </div>
 </div>
 ```
+
+### Start your engines
 
 Finally, use `startPhocus` to get thins started.
 
