@@ -6,7 +6,8 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "test": "jest",
-    "build": "tsc"
+    "build": "tsc",
+    "prepublishOnly": "tsc"
   },
   "repository": {
     "type": "git",
@@ -34,6 +35,6 @@
     "jest-cli": "^23.6.0",
     "mutationobserver-shim": "^0.3.2",
     "ts-jest": "^23.10.1",
-    "typescript": "^3.0.1"
+    "typescript": "^3.0.3"
   }
 }

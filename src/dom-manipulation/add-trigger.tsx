@@ -1,4 +1,4 @@
-import { ActionContextService } from "action-context/action-context";
+import { ActionContextService } from "../action-context/action-context";
 
 function onClick(e: MouseEvent) {
   if (!(e.target instanceof HTMLElement)) return;
@@ -36,6 +36,11 @@ export function addTrigger(elt: HTMLElement) {
     }
     elt.title = actionInContext.action.label();
     elt.setAttribute("aria-label", actionInContext.action.label());
+
+    // Set text (if elt is empty)
+    if (elt.innerText == "") {
+      elt.innerText = actionInContext.action.name;
+    }
 
     // Add click handler
     elt.addEventListener("click", onClick);

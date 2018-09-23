@@ -1,4 +1,3 @@
-import * as React from "react";
 import { Hotkey } from "../hotkey/hotkey";
 
 export type Key = string;
@@ -30,11 +29,7 @@ export interface ContextStackEntry {
   element: HTMLElement;
 }
 
-export type ActionEvent =
-  | React.KeyboardEvent<HTMLElement>
-  | React.MouseEvent<HTMLElement>
-  | KeyboardEvent;
-
+export type ActionEvent = KeyboardEvent | MouseEvent;
 // Actions have one free argument; when a context is pushed onto the stack, that
 // argument is stored along with it. An ActionInContext closes over the argument
 // so that the action can be called anywhere

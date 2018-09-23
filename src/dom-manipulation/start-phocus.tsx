@@ -1,16 +1,19 @@
-import { ActionContextService } from "action-context/action-context";
+import { ActionContextService } from "../action-context/action-context";
 import { dispatch, undispatch } from "./dispatch";
 import { addTrigger, removeTrigger } from "./add-trigger";
+import { ConstrainFocusService } from "constrain-focus/constrain-focus";
 
 function setFocusedContext() {
   let focused = document.activeElement;
   let focusedElement: HTMLElement | undefined;
   if (!(focused instanceof HTMLElement) && focused.parentElement) {
     focusedElement = focused.parentElement;
+  } else {
+    focusedElement = focused as HTMLElement;
   }
-  if (focusedElement) {
-    ActionContextService.setContext(focusedElement);
-  }
+  if (!focusedElement) return;
+  if (focusedElement == document.body) return;
+  ActionContextService.setContext(focusedElement);
 }
 
 function keydown(e: KeyboardEvent) {
@@ -37,7 +40,7 @@ function observe(mutations: MutationRecord[]) {
 var observer: MutationObserver;
 export function startPhocus(elt: HTMLElement) {
   dispatch(elt);
-  window.addEventListener("keydown", keydown);
+  document.addEventListener("keydown", keydown);
   observer = new MutationObserver(observe);
   observer.observe(elt, {
     childList: true,
@@ -45,13 +48,14 @@ export function startPhocus(elt: HTMLElement) {
     attributes: true,
     attributeFilter: ["data-phocus-action"]
   });
+  ConstrainFocusService.start();
   console.debug("Phocus: Watching for changes.");
 }
 
 export function stopPhocus(elt: HTMLElement) {
   undispatch(elt);
-  window.removeEventListener("keydown", keydown);
-  observer = new MutationObserver(observe);
+  document.removeEventListener("keydown", keydown);
   observer.disconnect();
+  ConstrainFocusService.stop();
   console.debug("Phocus: Watching stopped.");
 }

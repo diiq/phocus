@@ -1,11 +1,10 @@
 import {
-  ActionContextServiceClass,
+  ActionContextService,
   Action,
   ContextBlueprint
 } from "./action-context";
 
 describe("ActionContextService", () => {
-  let ActionContextService: ActionContextServiceClass;
   let saveAction: Action = new Action({
     name: "Save project",
     shortDocumentation: "Saves the project",
@@ -46,7 +45,7 @@ describe("ActionContextService", () => {
   };
 
   beforeEach(() => {
-    ActionContextService = new ActionContextServiceClass();
+    ActionContextService.clear();
     ActionContextService.addContext("project", projectContext);
     ActionContextService.addContext("root", rootContext);
     ActionContextService.addContext("opaque", opaqueContext);
