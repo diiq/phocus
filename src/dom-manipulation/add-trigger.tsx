@@ -38,8 +38,8 @@ export function addTrigger(elt: HTMLElement) {
     elt.setAttribute("aria-label", actionInContext.action.label());
 
     // Set text (if elt is empty)
-    if (elt.innerText == "") {
-      elt.innerText = actionInContext.action.name;
+    if (/^\s*$/.test(elt.innerHTML)) {
+      elt.innerHTML = actionInContext.action.name;
     }
 
     // Add click handler

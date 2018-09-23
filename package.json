@@ -1,7 +1,7 @@
 {
   "name": "phocus",
-  "version": "0.1.0",
-  "description": "React focus and action management, with keyboard shortcuts and help screens.",
+  "version": "1.0.0",
+  "description": "Focus and action management, with context-sensitive keyboard shortcuts.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
@@ -14,10 +14,11 @@
     "url": "git+https://github.com/diiq/phocus.git"
   },
   "keywords": [
-    "react",
     "focus",
     "keyboard",
+    "shortcut",
     "hotkey",
+    "a11y",
     "help"
   ],
   "author": "Sam Bleckley (sam@sambleckley.com)",
