@@ -145,6 +145,18 @@ ConstrainFocusService.popConstraint();
 
 As the names suggest, there is a stack of constraints; you can push consecutive constraints, and pop them one by one.
 
+### Hotkey remapping
+
+`ActionContextService.currentRemapping` is a JSON object representing the current mapping of hotkeys to actions. If you store this for a user, either in localstorage or on a server, then on subsequent visits, you can use `ActionContextService.restoreRemapping(mapping)` which takes that JSON object and restores the mapping it represents.
+
+`remapAction(action: Action, newMapping)` takes an Action object and a key string (such as "Control+a") and customizes that action with that hotkey.
+
+`unmapAction(action: Action)` removes hotkeys from an Action.
+
+`unremapAction(action)` restores the default hotkeys to an Action.
+
+All three remapping functions are temporary without using `currentRemapping` and `restoreRemapping` to carry the effects across sessions.
+
 ### Other useful functions
 
 `stopPhocus(element)` removes all Phocus' event watchers from the dom.
