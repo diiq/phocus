@@ -23,7 +23,7 @@ describe("ActionContextService", () => {
   };
 
   let logoutAction: Action = new Action({
-    name: "Logout",
+    name: "Log out",
     shortDocumentation: "Log out",
     defaultKeys: ["Control+s", "Control+o"],
     actOn: () => {},
@@ -84,6 +84,18 @@ describe("ActionContextService", () => {
       "  <div>" +
       '    <button id="button" />' +
       "  </div>" +
+      "</div>";
+    ActionContextService.setContext(document.getElementById("button"));
+    const stack = ActionContextService.contextStack;
+    expect(stack.length).toBe(1);
+    expect(stack[0].context).toBe("root");
+    expect(stack[0].argument).toBe("big-arg");
+  });
+
+  it("Finds context when called on elements with context on themselves", () => {
+    document.body.innerHTML =
+      "<div >" +
+      '  <button id="button" data-phocus-context-name="root" data-phocus-context-argument="big-arg" />' +
       "</div>";
     ActionContextService.setContext(document.getElementById("button"));
     const stack = ActionContextService.contextStack;

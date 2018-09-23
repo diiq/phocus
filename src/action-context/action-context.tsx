@@ -121,13 +121,13 @@ export class ActionContextServiceClass {
     this.contexts[name] = context;
   }
 
-  get currentContext() {
-    return this.contextStack[0].context;
+  clear() {
+    this.contextStack = [];
   }
 
   private getContextStack(elt: HTMLElement | null): ContextStackEntry[] {
     if (!elt) return [];
-    let stack = this.getContextStack(elt.parentElement)
+    let stack = this.getContextStack(elt.parentElement);
     if (elt.dataset.phocusContextName) {
       stack.unshift({
         context: elt.dataset.phocusContextName,
@@ -247,25 +247,28 @@ export class ActionContextServiceClass {
   }
 
   actionForName(name: string) {
-    const contextEntry = this.contextStack.find(c => name in this.contextFor(c).actions)
+    const contextEntry = this.contextStack.find(c => {
+      const context = this.contextFor(c);
+      return context && name in context.actions;
+    });
     if (!contextEntry) return;
-    const context = this.contextFor(contextEntry)
+    const context = this.contextFor(contextEntry);
     return new ActionInContext(
       context.actions[name],
       contextEntry.context,
       contextEntry.argument,
       contextEntry.element,
       this
-    )
+    );
   }
 
   triggerAction(name: string, e?: ActionEvent) {
-    const action = this.actionForName(name)
+    const action = this.actionForName(name);
     if (!action) {
       console.error(`No action found for name ${name}.`, this.contextStack);
       return;
     }
-    action.act(e)
+    action.act(e);
   }
 }
 
