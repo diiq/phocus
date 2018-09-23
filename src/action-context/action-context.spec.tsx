@@ -1,11 +1,10 @@
 import {
-  ActionContextServiceClass,
+  ActionContextService,
   Action,
   ContextBlueprint
 } from "./action-context";
 
 describe("ActionContextService", () => {
-  let ActionContextService: ActionContextServiceClass;
   let saveAction: Action = new Action({
     name: "Save project",
     shortDocumentation: "Saves the project",
@@ -23,7 +22,7 @@ describe("ActionContextService", () => {
   };
 
   let logoutAction: Action = new Action({
-    name: "Logout",
+    name: "Log out",
     shortDocumentation: "Log out",
     defaultKeys: ["Control+s", "Control+o"],
     actOn: () => {},
@@ -46,76 +45,175 @@ describe("ActionContextService", () => {
   };
 
   beforeEach(() => {
-    ActionContextService = new ActionContextServiceClass();
+    ActionContextService.clear();
     ActionContextService.addContext("project", projectContext);
     ActionContextService.addContext("root", rootContext);
     ActionContextService.addContext("opaque", opaqueContext);
-    ActionContextService.newContext();
-    ActionContextService.pushNewContext("root", {});
-    ActionContextService.enterNewContext();
   });
 
-  it("Can create a new context", () => {
-    expect(ActionContextService.currentContext).toBe("root");
-    ActionContextService.newContext();
-    ActionContextService.pushNewContext("project", {});
-    ActionContextService.enterNewContext();
-    expect(ActionContextService.currentContext).toBe("project");
+  it("Creates a stack for a dom element", () => {
+    document.body.innerHTML =
+      '<div data-phocus-context-name="project" data-phocus-context-argument="my-arg">' +
+      '  <button id="button" />' +
+      "</div>";
+    ActionContextService.setContext(document.getElementById("button"));
+    const stack = ActionContextService.contextStack;
+    expect(stack.length).toBe(1);
+    expect(stack[0].context).toBe("project");
+    expect(stack[0].argument).toBe("my-arg");
   });
 
-  it("Collects available actions", () => {
-    const actions1 = ActionContextService.availableActions;
-    expect(actions1.length).toEqual(1);
-    expect(actions1[0].action).toEqual(logoutAction);
-
-    // If I have two contexts on the stack, actions of both are available
-    const aThis = {};
-    ActionContextService.newContext();
-    ActionContextService.pushNewContext("project", aThis);
-    ActionContextService.pushNewContext("root", {});
-    ActionContextService.enterNewContext();
-    const actions2 = ActionContextService.availableActions;
-    expect(actions2.length).toEqual(2);
-    expect(actions2[0].action).toEqual(saveAction);
+  it("Creates a nested stack for nested dom elements", () => {
+    document.body.innerHTML =
+      '<div data-phocus-context-name="root" data-phocus-context-argument="big-arg">' +
+      '  <div data-phocus-context-name="project" data-phocus-context-argument="my-arg">' +
+      '    <button id="button" />' +
+      "  </div>" +
+      "</div>";
+    ActionContextService.setContext(document.getElementById("button"));
+    const stack = ActionContextService.contextStack;
+    expect(stack.length).toBe(2);
+    expect(stack[1].context).toBe("root");
+    expect(stack[1].argument).toBe("big-arg");
   });
 
-  it("gets an action for a keypress", () => {
-    expect(ActionContextService.actionForKeypress("Control+s").action).toBe(
-      logoutAction
-    );
+  it("Skips elements without contexts", () => {
+    document.body.innerHTML =
+      '<div data-phocus-context-name="root" data-phocus-context-argument="big-arg">' +
+      "  <div>" +
+      '    <button id="button" />' +
+      "  </div>" +
+      "</div>";
+    ActionContextService.setContext(document.getElementById("button"));
+    const stack = ActionContextService.contextStack;
+    expect(stack.length).toBe(1);
+    expect(stack[0].context).toBe("root");
+    expect(stack[0].argument).toBe("big-arg");
+  });
 
-    // Pushing a context can shadow a keybinding
-    ActionContextService.newContext();
-    ActionContextService.pushNewContext("project", {});
-    ActionContextService.pushNewContext("root", {});
-    ActionContextService.enterNewContext();
-    expect(ActionContextService.actionForKeypress("Control+s").action).toBe(
-      saveAction
-    );
+  it("Finds context when called on elements with context on themselves", () => {
+    document.body.innerHTML =
+      "<div >" +
+      '  <button id="button" data-phocus-context-name="root" data-phocus-context-argument="big-arg" />' +
+      "</div>";
+    ActionContextService.setContext(document.getElementById("button"));
+    const stack = ActionContextService.contextStack;
+    expect(stack.length).toBe(1);
+    expect(stack[0].context).toBe("root");
+    expect(stack[0].argument).toBe("big-arg");
+  });
 
-    // But a command can have multiple bindings
-    expect(ActionContextService.actionForKeypress("Control+o").action).toBe(
-      logoutAction
-    );
+  it("Handles elements with no arguments", () => {
+    document.body.innerHTML =
+      '<div data-phocus-context-name="root">' +
+      "  <div>" +
+      '    <button id="button" />' +
+      "  </div>" +
+      "</div>";
+    ActionContextService.setContext(document.getElementById("button"));
+    const stack = ActionContextService.contextStack;
+    expect(stack.length).toBe(1);
+    expect(stack[0].context).toBe("root");
+    expect(stack[0].argument).toBe(undefined);
+  });
 
-    // Pushing an opaque context prevents the use of bindings lower in the stack
-    // But keeps the root context
-    ActionContextService.newContext();
-    ActionContextService.pushNewContext("opaque", {});
-    ActionContextService.pushNewContext("project", {});
-    ActionContextService.pushNewContext("root", {});
-    ActionContextService.enterNewContext();
-    expect(ActionContextService.actionForKeypress("Control+p")).toBeUndefined();
-    expect(ActionContextService.actionForKeypress("Control+o").action).toBe(
-      logoutAction
-    );
+  describe("availableActions", () => {
+    it("collects actions from the current context", () => {
+      document.body.innerHTML =
+        '<div data-phocus-context-name="root" data-phocus-context-argument="big-arg">' +
+        '    <button id="button" />' +
+        "</div>";
+      ActionContextService.setContext(document.getElementById("button"));
+      const actions1 = ActionContextService.availableActions;
+      expect(actions1.length).toEqual(1);
+      expect(actions1[0].action).toEqual(logoutAction);
+    });
+
+    it("collects actions in order up the context stack", () => {
+      document.body.innerHTML =
+        '<div data-phocus-context-name="root" data-phocus-context-argument="big-arg">' +
+        '  <div data-phocus-context-name="project" data-phocus-context-argument="my-arg">' +
+        '    <button id="button" />' +
+        "  </div>" +
+        "</div>";
+      ActionContextService.setContext(document.getElementById("button"));
+      const actions = ActionContextService.availableActions;
+      expect(actions.length).toEqual(2);
+      expect(actions[0].action).toEqual(saveAction);
+    });
+
+    it("Does not collect actions through an opaque context", () => {
+      document.body.innerHTML =
+        '<div data-phocus-context-name="root" data-phocus-context-argument="big-arg">' +
+        '  <div data-phocus-context-name="opaque" data-phocus-context-argument="my-arg">' +
+        '    <button id="button" />' +
+        "  </div>" +
+        "</div>";
+      ActionContextService.setContext(document.getElementById("button"));
+      const actions = ActionContextService.availableActions;
+      expect(actions.length).toEqual(0);
+    });
+  });
+
+  describe("keybindings", () => {
+    it("gets an action for a keypress", () => {
+      document.body.innerHTML =
+        '<div data-phocus-context-name="root" data-phocus-context-argument="big-arg">' +
+        '  <button id="button" />' +
+        "</div>";
+      ActionContextService.setContext(document.getElementById("button"));
+
+      expect(ActionContextService.actionForKeypress("Control+s").action).toBe(
+        logoutAction
+      );
+    });
+
+    it("Pushing a context can shadow a keybinding", () => {
+      document.body.innerHTML =
+        '<div data-phocus-context-name="root" data-phocus-context-argument="big-arg">' +
+        '  <div data-phocus-context-name="project" data-phocus-context-argument="my-arg">' +
+        '    <button id="button" />' +
+        "  </div>" +
+        "</div>";
+      ActionContextService.setContext(document.getElementById("button"));
+
+      expect(ActionContextService.actionForKeypress("Control+s").action).toBe(
+        saveAction
+      );
+
+      // But a command can have multiple bindings
+      expect(ActionContextService.actionForKeypress("Control+o").action).toBe(
+        logoutAction
+      );
+    });
+
+    it("Pushing an opaque context prevents the use of bindings lower in the stack", () => {
+      document.body.innerHTML =
+        '<div data-phocus-context-name="root" data-phocus-context-argument="big-arg">' +
+        '  <div data-phocus-context-name="opaque" data-phocus-context-argument="my-arg">' +
+        '    <button id="button" />' +
+        "  </div>" +
+        "</div>";
+      ActionContextService.setContext(document.getElementById("button"));
+      expect(
+        ActionContextService.actionForKeypress("Control+p")
+      ).toBeUndefined();
+      expect(
+        ActionContextService.actionForKeypress("Control+o")
+      ).toBeUndefined();
+    });
   });
 
   it("can remap an action to a new keybinding", () => {
+    document.body.innerHTML =
+      '<div data-phocus-context-name="root" data-phocus-context-argument="big-arg">' +
+      '  <button id="button" />' +
+      "</div>";
+    ActionContextService.setContext(document.getElementById("button"));
+
     expect(ActionContextService.actionForKeypress("Control+o").action).toBe(
       logoutAction
     );
-
     ActionContextService.remapAction(logoutAction, "Control+q");
     expect(ActionContextService.actionForKeypress("Control+o")).toBeUndefined();
     expect(ActionContextService.actionForKeypress("Control+q").action).toBe(
