@@ -3,6 +3,7 @@ import { ActionContextService } from "../action-context/action-context";
 function onClick(e: MouseEvent) {
   if (!(e.target instanceof HTMLElement)) return;
   if (!e.target.dataset.phocusAction) return;
+  if ((e.target as HTMLButtonElement).disabled) return;
   ActionContextService.setContext(e.target);
   ActionContextService.triggerAction(e.target.dataset.phocusAction);
 }

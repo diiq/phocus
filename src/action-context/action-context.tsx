@@ -38,7 +38,7 @@ export class ActionInContext {
     public action: Action,
     private contextName: string,
     private argument: any,
-    private element: HTMLElement | undefined,
+    private element: HTMLElement,
     private service: ActionContextServiceClass
   ) {}
 
@@ -62,7 +62,7 @@ export class Action {
   name: string;
   shortDocumentation: string;
   searchTerms: string[];
-  actOn: (argument: any, element?: HTMLElement, e?: ActionEvent) => void;
+  actOn: (argument: any, element: HTMLElement, e?: ActionEvent) => void;
   defaultKeys: Key[];
 
   // If true, hide from the action palette
@@ -72,7 +72,7 @@ export class Action {
     name: string;
     shortDocumentation: string;
     searchTerms: string[];
-    actOn: (argument: any, element?: HTMLElement, e?: ActionEvent) => void;
+    actOn: (argument: any, element: HTMLElement, e?: ActionEvent) => void;
     defaultKeys: Key[];
     hidden?: boolean;
   }) {

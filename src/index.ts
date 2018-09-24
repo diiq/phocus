@@ -4,6 +4,7 @@ export {
   ContextBlueprint,
   ContextStackEntry,
   ActionEvent,
+  Key
 } from "./action-context/action-context";
 export { Hotkey } from "./hotkey/hotkey";
 export { ConstrainFocusService } from "./constrain-focus/constrain-focus";
