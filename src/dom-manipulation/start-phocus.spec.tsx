@@ -28,10 +28,10 @@ describe("dispatch", () => {
   ActionContextService.addContext("project", projectContext);
 
   it("Sets a click action for elements with data-phocus-action", () => {
-    document.body.innerHTML =
-      '<div data-phocus-context-name="project" data-phocus-context-argument="my-arg">' +
-      '  <button id="button" data-phocus-action="save" />' +
-      "</div>";
+    document.body.innerHTML = `
+      <div data-phocus-context-name="project" data-phocus-context-argument="my-arg">
+        <button id="button" data-phocus-action="save" />
+      </div>`;
     startPhocus(document.body);
 
     const button = document.getElementById("button");
@@ -41,10 +41,10 @@ describe("dispatch", () => {
 
   it("Sets a click action for elements that gain a data-phocus-action", () => {
     // Button doesn't have an action to start, but phocus is watching!
-    document.body.innerHTML =
-      '<div data-phocus-context-name="project" data-phocus-context-argument="my-arg">' +
-      '  <button id="button" />' +
-      "</div>";
+    document.body.innerHTML = `
+      <div data-phocus-context-name="project" data-phocus-context-argument="my-arg">
+        <button id="button" />
+      </div>`;
     startPhocus(document.body);
 
     const button = document.getElementById("button");
@@ -55,13 +55,12 @@ describe("dispatch", () => {
   });
 });
 
-
 function mutationObserverShim() {
   const dom = new jsdom.JSDOM();
-  global['window'] = dom.window;
-  global['document'] = dom.window.document;
+  global["window"] = dom.window;
+  global["document"] = dom.window.document;
 
-  require('mutationobserver-shim');
+  require("mutationobserver-shim");
 
-  global['MutationObserver'] = window['MutationObserver'];
+  global["MutationObserver"] = window["MutationObserver"];
 }

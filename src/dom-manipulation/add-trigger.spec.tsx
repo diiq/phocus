@@ -25,10 +25,10 @@ describe("makeTriggerable", () => {
   ActionContextService.addContext("project", projectContext);
 
   it("Sets a click action", () => {
-    document.body.innerHTML =
-      '<div data-phocus-context-name="project" data-phocus-context-argument="my-arg">' +
-      '  <button id="button" data-phocus-action="save" />' +
-      "</div>";
+    document.body.innerHTML = `
+      <div data-phocus-context-name="project" data-phocus-context-argument="my-arg">
+        <button id="button" data-phocus-action="save" />
+      </div>`;
     const button = document.getElementById("button");
     addTrigger(button);
     button.click();
@@ -36,10 +36,10 @@ describe("makeTriggerable", () => {
   });
 
   it("Sets a title", () => {
-    document.body.innerHTML =
-      '<div data-phocus-context-name="project" data-phocus-context-argument="my-arg">' +
-      '  <button id="button" data-phocus-action="save" />' +
-      "</div>";
+    document.body.innerHTML = `
+      <div data-phocus-context-name="project" data-phocus-context-argument="my-arg">
+        <button id="button" data-phocus-action="save" />
+      </div>`;
     const button = document.getElementById("button");
     addTrigger(button);
     expect(button.title).toBe("Save project (Control+s)");

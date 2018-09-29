@@ -1,6 +1,4 @@
-import {
-  focusInContext
-} from "./focus-in-context";
+import { focusInContext } from "./focus-in-context";
 
 describe("focus-in-context", () => {
   it("Focuses on a thing with a phocus-id", () => {
@@ -9,8 +7,8 @@ describe("focus-in-context", () => {
       <button id="button" data-phocus-id="goo" />
       <button id="other" />
     </div>`;
-    const button = document.getElementById('button');
-    const other = document.getElementById('other');
+    const button = document.getElementById("button");
+    const other = document.getElementById("other");
     other.focus();
     focusInContext("goo");
     expect(document.activeElement).toBe(button);
@@ -25,8 +23,8 @@ describe("focus-in-context", () => {
       <button id="button" data-phocus-id="goo" />
       <button id="other" />
     </div>`;
-    const button = document.getElementById('button');
-    const other = document.getElementById('other');
+    const button = document.getElementById("button");
+    const other = document.getElementById("other");
     other.focus();
     focusInContext("goo");
     expect(document.activeElement).toBe(button);
@@ -41,8 +39,8 @@ describe("focus-in-context", () => {
       <button id="button" data-phocus-id="goo" />
       <button id="other" />
     </div>`;
-    const button = document.getElementById('button');
-    const other = document.getElementById('other');
+    const button = document.getElementById("button");
+    const other = document.getElementById("other");
     focusInContext("goo", other);
     expect(document.activeElement).toBe(button);
   });
