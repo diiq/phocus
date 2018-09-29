@@ -1,6 +1,6 @@
 {
   "name": "phocus",
-  "version": "1.0.2",
+  "version": "1.1.0",
   "description": "Focus and action management, with context-sensitive keyboard shortcuts.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
