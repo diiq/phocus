@@ -169,6 +169,9 @@ All three remapping functions are temporary without using `currentRemapping` and
 
 `ActionContextService.setContext(element)` will set the context to a given element. Using `document.activeElement` as an argument is the most common, setting the context to the currently focused element.
 
+`focusInContext(phocusId[, element])` will focus on an element with the attribute `data-phocus-id="[phocusId]"`; but it will focus on the element that is the nearest context sibling. That is, if such an element exists in the currently focused context, it will focus on it. Otherwise it will look for one in the parent context, then the granparent context. This allows muliple elements on the page to have the same phocus-id, while still allowing us to focus on the meaningful one, not just the first in the DOM.
+
+
 ### Contributing
 
 Phocus is, first and foremost, a tool I use for building products myself. I probably won't accept changes that make it less effective for me, personally.
