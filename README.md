@@ -98,7 +98,13 @@ ActionContextService.addContext("feature-thumbnail", {
 
 In your markup, use attributes to tie your context to the DOM.
 
+`data-phocus-context-name` defines what context, what set of commands, will be available to all children of that element.
+
 `data-phocus-context-argument` defines the first argument that will be passed to any action called within the context; in this case, the actions are all expecting an id string.
+
+`data-phocus-id` is an ID for controlling focus programmatically using `focusInContext(id[, element])`.
+
+`data-phocus-action` connects a button to an action in the current context. Phocus will also label the button for screen-readers, and add a text-node with the action name if necessary.
 
 ```
 <div data-phocus-context-name="feature-thumbnail" data-phocus-context-argument="123">
