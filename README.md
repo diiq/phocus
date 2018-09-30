@@ -106,6 +106,8 @@ In your markup, use attributes to tie your context to the DOM.
 
 `data-phocus-action` connects a button to an action in the current context. Phocus will also label the button for screen-readers, and add a text-node with the action name if necessary.
 
+`data-phocus-on-mouseover` is a boolean; it causes the element to gain focus on mouseover. This is useful especially for elements where key commands should apply when hovering -- like in Trello. It can be dangerous, however, if there are also elements on the page such as form inputs. Use with caution and forethought!
+
 ```
 <div data-phocus-context-name="feature-thumbnail" data-phocus-context-argument="123">
   <button data-phocus-action="showBugs"></button>
@@ -175,7 +177,7 @@ All three remapping functions are temporary without using `currentRemapping` and
 
 `ActionContextService.setContext(element)` will set the context to a given element. Using `document.activeElement` as an argument is the most common, setting the context to the currently focused element.
 
-`focusInContext(phocusId[, element])` will focus on an element with the attribute `data-phocus-id="[phocusId]"`; but it will focus on the element that is the nearest context sibling. That is, if such an element exists in the currently focused context, it will focus on it. Otherwise it will look for one in the parent context, then the granparent context. This allows muliple elements on the page to have the same phocus-id, while still allowing us to focus on the meaningful one, not just the first in the DOM.
+`focusInContext(phocusId[, element])` will focus on an element with the attribute `data-phocus-id="[phocusId]"`; but it will focus on the element that is the nearest context sibling. That is, if such an element exists in the currently focused context, it will focus on it. Otherwise it will look for one in the parent context, then the grandparent context. This allows multiple elements on the page to have the same phocus-id, while still allowing us to focus on the meaningful one, not just the first in the DOM.
 
 
 ### Contributing
