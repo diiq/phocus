@@ -3,8 +3,13 @@
 //     4.1. This subset is always contained in exactly one branch of the element tree
 //
 
+interface StackElement {
+  constraint: () => HTMLElement | null
+  previousFocus: Element | null
+}
+
 export class ConstrainFocus {
-  stack: (() => HTMLElement | null)[] = [];
+  stack: StackElement[] = [];
 
   start() {
     document.addEventListener("blur", this.handler as EventListener, true);
@@ -20,13 +25,22 @@ export class ConstrainFocus {
     if (!root) return;
     if (!e.relatedTarget) return;
     if (!root.contains(e.relatedTarget as Element)) {
-      if (root.contains(e.target as Element)) {
-        (e.target as HTMLElement).focus();
-      } else {
-        (root.querySelector("[tabindex='0']") as HTMLElement).focus();
-      }
+      this.refocus(root, e.target as Element)
     }
   };
+
+  refocus(root: HTMLElement, target: Element) {
+    if (root.contains(target)) {
+      (target as HTMLElement).focus();
+    } else {
+      const focusable = root.querySelector("button, input, textarea, a, [tabindex='0']");
+      if (focusable) {
+        (focusable as HTMLElement).focus();
+      } else {
+        root.focus();
+      }
+    }
+  }
 
   focusable(element: HTMLElement) {
     const root = this.currentRoot();
@@ -34,15 +48,23 @@ export class ConstrainFocus {
   }
 
   currentRoot(): HTMLElement | null {
-    return this.stack[0] && this.stack[0]();
+    return this.stack[0] && this.stack[0].constraint();
   }
 
   pushConstraint(root: () => HTMLElement | null) {
-    this.stack.unshift(root);
+    this.stack.unshift({
+      constraint: root,
+      previousFocus: document.activeElement
+    });
+    const rootE = this.currentRoot();
+    if (!rootE) return;
+    this.refocus(rootE, document.activeElement);
   }
 
   popConstraint() {
-    this.stack.shift();
+    const pop = this.stack.shift();
+    if (!pop || !pop.previousFocus || !(pop.previousFocus instanceof HTMLElement)) return;
+    pop.previousFocus.focus();
   }
 
   noConstraints() {
