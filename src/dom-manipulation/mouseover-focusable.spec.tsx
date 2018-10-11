@@ -1,4 +1,4 @@
-import { makeMouseoverFocusable } from "./mouseover-focusable";
+import { makeMouseoverFocusable, setMoving } from "./mouseover-focusable";
 
 describe("makeMouseoverFocusable", () => {
   it("Sets the tab index", () => {
@@ -21,11 +21,25 @@ describe("makeMouseoverFocusable", () => {
     expect(button.tabIndex).toBe(-1);
   });
 
+  it("Doesn't focus on mouseover if mouse doesn't move", () => {
+    document.body.innerHTML = `
+    <div>
+      <button data-phocus-on-mouseover="true" id="button" />
+    </div>`;
+    const oldFocus = document.activeElement
+    const button = document.getElementById("button");
+    makeMouseoverFocusable(button);
+    const mouseoverEvent = new Event("mouseenter");
+    button.dispatchEvent(mouseoverEvent);
+    expect(document.activeElement).toBe(oldFocus);
+  });
+
   it("Focuses on mouseover", () => {
     document.body.innerHTML = `
     <div>
       <button data-phocus-on-mouseover="true" id="button" />
     </div>`;
+    setMoving();
     const button = document.getElementById("button");
     makeMouseoverFocusable(button);
     const mouseoverEvent = new Event("mouseenter");
