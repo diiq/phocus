@@ -1,11 +1,11 @@
 import { ActionContextService } from "../action-context/action-context";
 
 function onClick(e: MouseEvent) {
-  if (!(e.target instanceof HTMLElement)) return;
-  if (!e.target.dataset.phocusAction) return;
-  if ((e.target as HTMLButtonElement).disabled) return;
-  ActionContextService.setContext(e.target);
-  ActionContextService.triggerAction(e.target.dataset.phocusAction);
+  if (!(e.currentTarget instanceof HTMLElement)) return;
+  if (!e.currentTarget.dataset.phocusAction) return;
+  if ((e.currentTarget as HTMLButtonElement).disabled) return;
+  ActionContextService.setContext(e.currentTarget);
+  ActionContextService.triggerAction(e.currentTarget.dataset.phocusAction, e);
 }
 
 export const triggerableTags = ["button", "a"];
@@ -13,7 +13,7 @@ export function addTrigger(elt: HTMLElement) {
   if (!elt.dataset.phocusAction) return;
   const action = elt.dataset.phocusAction;
 
-  if (triggerableTags.indexOf(elt.tagName.toLowerCase()) < 0) {
+  if (triggerableTags.indexOf(elt.tagName.toLowerCase()) < 0 && elt.getAttribute("role") !== "button") {
     console.error(
       `${
         elt.tagName
@@ -35,8 +35,10 @@ export function addTrigger(elt: HTMLElement) {
       );
       return;
     }
-    elt.title = actionInContext.action.label();
-    elt.setAttribute("aria-label", actionInContext.action.label());
+    if (!elt.dataset.phocusDoNotLabel) {
+      elt.title = actionInContext.action.label();
+      elt.setAttribute("aria-label", actionInContext.action.label());
+    }
 
     // Set text (if elt is empty)
     if (/^\s*$/.test(elt.innerHTML)) {

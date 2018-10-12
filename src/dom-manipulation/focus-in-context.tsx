@@ -20,7 +20,7 @@ export function focusInContext(phocusId: string, elt?: HTMLElement) {
     return;
   }
   const find: HTMLElement | null = parent.querySelector(
-    `[data-phocus-id="${phocusId}"`
+    `[data-phocus-id="${phocusId}"]`
   );
   if (find) {
     find.focus();

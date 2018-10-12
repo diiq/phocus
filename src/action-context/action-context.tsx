@@ -60,7 +60,7 @@ export class ActionInContext {
 export class Action {
   remappedKey: Key | null = null;
   name: string;
-  shortDocumentation: string;
+  shortDocumentation: string | undefined;
   searchTerms: string[];
   actOn: (argument: any, element: HTMLElement, e?: ActionEvent) => void;
   defaultKeys: Key[];
@@ -70,8 +70,8 @@ export class Action {
 
   constructor(description: {
     name: string;
-    shortDocumentation: string;
-    searchTerms: string[];
+    shortDocumentation?: string;
+    searchTerms?: string[];
     actOn: (argument: any, element: HTMLElement, e?: ActionEvent) => void;
     defaultKeys: Key[];
     hidden?: boolean;
@@ -79,7 +79,7 @@ export class Action {
     this.remappedKey = null;
     this.name = description.name;
     this.shortDocumentation = description.shortDocumentation;
-    this.searchTerms = description.searchTerms;
+    this.searchTerms = description.searchTerms || [];
     this.actOn = description.actOn;
     this.defaultKeys = description.defaultKeys;
     this.hidden = description.hidden || false;

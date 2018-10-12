@@ -1,7 +1,17 @@
 var moving = false;
+var timeout: NodeJS.Timer | null = null;
 export function setMoving() {
   moving = true;
-  setTimeout(() => moving = false, 250);
+
+  if (timeout) {
+    clearTimeout(timeout);
+    timeout = null;
+  }
+
+  timeout = setTimeout(() => {
+    moving = false;
+    timeout = null;
+  }, 250);
 }
 
 function mouseoverFocus(e: MouseEvent) {
