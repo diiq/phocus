@@ -13,7 +13,6 @@ function setFocusedContext() {
     focusedElement = focused as HTMLElement;
   }
   if (!focusedElement) return;
-  if (focusedElement == document.body) return;
   ActionContextService.setContext(focusedElement);
 }
 

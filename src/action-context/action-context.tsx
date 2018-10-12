@@ -26,7 +26,7 @@ export interface ContextBlueprint {
 export interface ContextStackEntry {
   context: string;
   argument: string | undefined;
-  element: HTMLElement;
+  element: HTMLElement | undefined;
 }
 
 export type ActionEvent = KeyboardEvent | MouseEvent;
@@ -38,7 +38,7 @@ export class ActionInContext {
     public action: Action,
     private contextName: string,
     private argument: any,
-    private element: HTMLElement,
+    private element: HTMLElement | undefined,
     private service: ActionContextServiceClass
   ) {}
 
@@ -62,7 +62,7 @@ export class Action {
   name: string;
   shortDocumentation: string | undefined;
   searchTerms: string[];
-  actOn: (argument: any, element: HTMLElement, e?: ActionEvent) => void;
+  actOn: (argument: any, element?: HTMLElement, e?: ActionEvent) => void;
   defaultKeys: Key[];
 
   // If true, hide from the action palette
@@ -72,7 +72,7 @@ export class Action {
     name: string;
     shortDocumentation?: string;
     searchTerms?: string[];
-    actOn: (argument: any, element: HTMLElement, e?: ActionEvent) => void;
+    actOn: (argument: any, element?: HTMLElement, e?: ActionEvent) => void;
     defaultKeys: Key[];
     hidden?: boolean;
   }) {
@@ -101,13 +101,10 @@ export class Action {
 }
 
 export class ActionContextServiceClass {
-  contextStack: ContextStackEntry[];
+  contextStack: ContextStackEntry[] = [];
+  defaultContextStack: ContextStackEntry[] = [];
   contexts: { [id: string]: ContextBlueprint } = {};
   remappingDirty: boolean = false;
-
-  constructor() {
-    this.contextStack = [];
-  }
 
   addContext(name: string, context: ContextBlueprint) {
     if (this.contexts[name]) {
@@ -116,8 +113,22 @@ export class ActionContextServiceClass {
     this.contexts[name] = context;
   }
 
-  clear() {
-    this.contextStack = [];
+  addDefaultContext(name: string, argument?: any, element?: HTMLElement) {
+    this.defaultContextStack.push({
+      context: name,
+      argument: argument,
+      element: element
+    });
+  }
+
+  removeDefaultContext(name: string, argument?: any, element?: HTMLElement) {
+    this.defaultContextStack = this.defaultContextStack.filter(c => {
+      return !(
+        c.context === name &&
+        c.argument === argument &&
+        c.element === element
+      );
+    });
   }
 
   private getContextStack(elt: HTMLElement | null): ContextStackEntry[] {
@@ -140,16 +151,19 @@ export class ActionContextServiceClass {
   /** Give a user-specific key command for an action. */
   remapAction(action: Action, newMapping: Key) {
     action.remappedKey = newMapping;
+    this.onRemappingCallback(this.currentRemapping);
   }
 
   /** Remove a user-specific key command for an action. */
   unremapAction(action: Action) {
     action.remappedKey = null;
+    this.onRemappingCallback(this.currentRemapping);
   }
 
   /** Remove a user-specific key command for an action. */
   unmapAction(action: Action) {
     action.remappedKey = "None";
+    this.onRemappingCallback(this.currentRemapping);
   }
 
   /** Collect all user-remapped actions so that they can be saved */
@@ -170,8 +184,13 @@ export class ActionContextServiceClass {
     return [].concat.apply([], ll).filter((x: any) => x);
   }
 
-  restoreRemapping(remapping: Remapping[]) {
-    if (!remapping) return;
+  restoreRemapping(remapping?: Remapping[]) {
+    if (!remapping) {
+      remapping = JSON.parse(
+        localStorage.getItem("phocus-remapping") || "null"
+      );
+      if (!remapping) return;
+    }
     remapping.map(m => {
       const context = this.contexts[m.context];
       const action = context.actions[m.action];
@@ -179,10 +198,24 @@ export class ActionContextServiceClass {
     });
   }
 
+  // By default, store remappings in localStorage.
+  onRemappingCallback = (remapping: Remapping[]) => {
+    localStorage.setItem("phocus-remapping", JSON.stringify(remapping));
+  };
+  onRemapping(callback: (remapping: Remapping[]) => void) {
+    this.onRemappingCallback = callback;
+  }
+
+  get currentStackWithDefaults() {
+    return ([] as ContextStackEntry[]).concat(
+      this.contextStack,
+      this.defaultContextStack
+    )
+  }
   /** Collect actions, along with the appropriate argument, from all
    * contexts in the active stack, smallest context first */
   get availableActions() {
-    return this.actionsInContexts(this.contextStack);
+    return this.actionsInContexts(this.currentStackWithDefaults);
   }
 
   private actionsInContexts(contextStack: ContextStackEntry[]) {
@@ -242,7 +275,7 @@ export class ActionContextServiceClass {
   }
 
   actionForName(name: string) {
-    const contextEntry = this.contextStack.find(c => {
+    const contextEntry = this.currentStackWithDefaults.find(c => {
       const context = this.contextFor(c);
       return context && name in context.actions;
     });

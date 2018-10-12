@@ -155,17 +155,21 @@ As the names suggest, there is a stack of constraints; you can push consecutive 
 
 ### Hotkey remapping
 
-`ActionContextService.currentRemapping` is a JSON object representing the current mapping of hotkeys to actions. If you store this for a user, either in localstorage or on a server, then on subsequent visits, you can use `ActionContextService.restoreRemapping(mapping)` which takes that JSON object and restores the mapping it represents.
+`ActionContextService.currentRemapping` is a JSON object representing the current mapping of hotkeys to actions. If you store this for a user, then on subsequent visits, you can use `ActionContextService.restoreRemapping(mapping)` which takes that JSON object and restores the mapping it represents.
 
-`remapAction(action: Action, newMapping)` takes an Action object and a key string (such as "Control+a") and customizes that action with that hotkey.
+`ActionContextService.remapAction(action: Action, newMapping)` takes an Action object and a key string (such as "Control+a") and customizes that action with that hotkey.
 
-`unmapAction(action: Action)` removes hotkeys from an Action.
+`ActionContextService.unmapAction(action: Action)` removes hotkeys from an Action.
 
-`unremapAction(action)` restores the default hotkeys to an Action.
+`ActionContextService.unremapAction(action)` restores the default hotkeys to an Action.
 
-All three remapping functions are temporary without using `currentRemapping` and `restoreRemapping` to carry the effects across sessions.
+All three remapping functions store bindings in localStorage by default. You must call `ActionContextService.restoreRemapping()` with no arguments to restore bindings from localStorage. 
+
+Use of localStorage can be overridden (e.g. to use a server instead) by using `onRemapping(callback: (remapping: Remapping[]) => void)` to set how bindings are saved whenever they change, OR by using `currentRemapping` and `restoreRemapping` to carry bindings across sessions whenever and however you like.
 
 ### Other useful functions
+
+`ActionContextService.addDefaultContext(name: string, argument: any, element?: any)` sets a context (named by name) to be available everywhere, no matter what is focused. You can add as many default contexts as you like; `ActionContextService.removeDefaultContext` takes the same arguments and removes the context from the set of defaults.
 
 `stopPhocus(element)` removes all Phocus' event watchers from the dom.
 
