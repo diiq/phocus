@@ -6,6 +6,7 @@ import { setMoving } from "./mouseover-focusable";
 
 function setFocusedContext() {
   let focused = document.activeElement;
+  if (!focused) return;
   let focusedElement: HTMLElement | undefined;
   if (!(focused instanceof HTMLElement) && focused.parentElement) {
     focusedElement = focused.parentElement;

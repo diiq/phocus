@@ -57,8 +57,9 @@ export class ConstrainFocus {
       previousFocus: document.activeElement
     });
     const rootE = this.currentRoot();
-    if (!rootE) return;
-    this.refocus(rootE, document.activeElement);
+    const focus = document.activeElement;
+    if (!rootE || !focus) return;
+    this.refocus(rootE, focus);
   }
 
   popConstraint() {

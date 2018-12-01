@@ -188,7 +188,12 @@ export class ActionContextServiceClass {
         };
       });
     });
-    return [].concat.apply([], ll).filter((x: any) => x);
+    // This is a hot mess of typing. First real "ts is in my way" moment. We've
+    // got an array of maybe-remappings, gotta flatten it and remove any
+    // undefineds:
+    return ([] as (Remapping | undefined)[]).concat
+      .apply([], ll)
+      .filter((x: any) => x) as Remapping[];
   }
 
   restoreRemapping(remapping?: Remapping[]) {
@@ -217,7 +222,7 @@ export class ActionContextServiceClass {
     return ([] as ContextStackEntry[]).concat(
       this.contextStack,
       this.defaultContextStack
-    )
+    );
   }
   /** Collect actions, along with the appropriate argument, from all
    * contexts in the active stack, smallest context first */
