@@ -45,4 +45,34 @@ describe("makeTriggerable", () => {
     expect(button.title).toBe("Save project (Control+s)");
     expect(button.getAttribute("aria-label")).toBe("Save project (Control+s)");
   });
+
+  it("Sets a name if empty", () => {
+    document.body.innerHTML = `
+      <div data-phocus-context-name="project" data-phocus-context-argument="my-arg">
+        <button id="button" data-phocus-action="save" />
+      </div>`;
+    const button = document.getElementById("button");
+    addTrigger(button);
+    expect(button.textContent).toBe("Save project");
+  });
+
+  it("Sets a name if autolabel is set", () => {
+    document.body.innerHTML = `
+      <div data-phocus-context-name="project" data-phocus-context-argument="my-arg">
+        <button id="button" data-phocus-action="save" data-phocus-autolabel=".label">Hello <span class="label"></span></button>
+      </div>`;
+    const button = document.getElementById("button");
+    addTrigger(button);
+    expect(button.textContent).toBe("Hello Save project");
+  });
+
+  it("Does not sets a name if there is content and no autolabel", () => {
+    document.body.innerHTML = `
+      <div data-phocus-context-name="project" data-phocus-context-argument="my-arg">
+        <button id="button" data-phocus-action="save">Hello</button>
+      </div>`;
+    const button = document.getElementById("button");
+    addTrigger(button);
+    expect(button.textContent).toBe("Hello");
+  });
 });

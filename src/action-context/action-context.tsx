@@ -131,6 +131,13 @@ export class ActionContextServiceClass {
     });
   }
 
+  clear() {
+    this.defaultContextStack = [];
+    this.contextStack = [];
+    this.contexts = {};
+    this.remappingDirty = false;
+  }
+
   private getContextStack(elt: HTMLElement | null): ContextStackEntry[] {
     if (!elt) return [];
     let stack = this.getContextStack(elt.parentElement);

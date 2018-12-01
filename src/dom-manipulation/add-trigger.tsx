@@ -13,7 +13,10 @@ export function addTrigger(elt: HTMLElement) {
   if (!elt.dataset.phocusAction) return;
   const action = elt.dataset.phocusAction;
 
-  if (triggerableTags.indexOf(elt.tagName.toLowerCase()) < 0 && elt.getAttribute("role") !== "button") {
+  if (
+    triggerableTags.indexOf(elt.tagName.toLowerCase()) < 0 &&
+    elt.getAttribute("role") !== "button"
+  ) {
     console.error(
       `${
         elt.tagName
@@ -43,6 +46,17 @@ export function addTrigger(elt: HTMLElement) {
     // Set text (if elt is empty)
     if (/^\s*$/.test(elt.innerHTML)) {
       elt.innerHTML = actionInContext.action.name;
+    } else if (elt.dataset.phocusAutolabel) {
+      const label = elt.querySelector(elt.dataset.phocusAutolabel);
+      if (label) {
+        label.innerHTML = actionInContext.action.name;
+      } else {
+        console.warn(
+          `Asked to autolabel ${
+            elt.dataset.phocusAutolabel
+          }, but no such element exists inside ${elt}.`
+        );
+      }
     }
 
     // Add click handler

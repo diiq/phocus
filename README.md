@@ -106,6 +106,8 @@ In your markup, use attributes to tie your context to the DOM.
 
 `data-phocus-action` connects a button to an action in the current context. Phocus will also label the button for screen-readers, and add a text-node with the action name if necessary.
 
+`data-phocus-autolabel="[SELECTOR]"` works in conjunction with `data-phocus-action`, and will add a text-node with the action name to the specified selector beneath the element.
+
 `data-phocus-on-mouseover` is a boolean; it causes the element to gain focus on mouseover. This is useful especially for elements where key commands should apply when hovering -- like in Trello. It can be dangerous, however, if there are also elements on the page such as form inputs. Use with caution and forethought!
 
 ```
