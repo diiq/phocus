@@ -51,7 +51,6 @@ export function startPhocus(elt: HTMLElement) {
     attributeFilter: ["data-phocus-action", "data-phocus-on-mouseover"]
   });
   ConstrainFocusService.start();
-  console.debug("Phocus: Watching for changes.");
 }
 
 export function stopPhocus(elt: HTMLElement) {
@@ -60,5 +59,4 @@ export function stopPhocus(elt: HTMLElement) {
   document.removeEventListener("mousemove", setMoving);
   observer.disconnect();
   ConstrainFocusService.stop();
-  console.debug("Phocus: Watching stopped.");
 }
