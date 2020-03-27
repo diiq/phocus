@@ -1,6 +1,6 @@
 {
   "name": "phocus",
-  "version": "1.4.2",
+  "version": "1.4.3",
   "description": "Focus and action management, with context-sensitive keyboard shortcuts.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -30,12 +30,12 @@
   "dependencies": {},
   "peerDependencies": {},
   "devDependencies": {
-    "@types/jest": "^23.3.10",
-    "@types/jsdom": "^11.12.0",
-    "jest": "^23.6.0",
-    "jest-cli": "^23.6.0",
-    "mutationobserver-shim": "^0.3.2",
-    "ts-jest": "^23.10.5",
-    "typescript": "^3.2.1"
+    "@types/jest": "^25.1.4",
+    "@types/jsdom": "^16.1.1",
+    "jest": "^25.2.3",
+    "jest-cli": "^25.2.3",
+    "mutationobserver-shim": "^0.3.3",
+    "ts-jest": "^25.2.1",
+    "typescript": "^3.8.3"
   }
 }

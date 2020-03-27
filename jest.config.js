@@ -9,7 +9,7 @@ module.exports = {
   modulePaths: [
     "<rootDir>/src"
   ],
-  setupTestFrameworkScriptFile: "<rootDir>/test-rig/test-setup.js",
+  setupFilesAfterEnv: ["<rootDir>/test-rig/test-setup.js"],
   globals: {
     "PRODUCTION": false,
     "ts-jest": {

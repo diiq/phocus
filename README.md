@@ -20,19 +20,19 @@ Phocus comes with typescript typings; no need to install them separately.
 
 The Rules of Phocus:
 
-1. Any element that allows the user to take an action can be focused.
-2. Only one element can be focused at a time.
-3. Focus moves between elements using the mouse, keyboard, or programmatically
-   - Some elements focus on click; some on hover.
-4. Some states only allow focus among a subset of all focusable elements (modals, menus)
-   - This subset is always contained in exactly one branch of the element tree
-5. An element can allow a user to trigger a single context-sensitive action by clicking, or hitting enter when focused. (Some drop-downs trigger on Space for a11y reasons.)
+1. Any DOM element that allows the user to take an action can be focused.
+2. Only one DOM element can be focused at a time.
+3. Focus moves between DOM elements using the mouse, keyboard, or programmatically
+   - Some DOM elements focus on click; some on hover.
+4. Some states only allow focus among a subset of all focusable DOM elements (modals, menus)
+   - This subset is always contained in exactly one branch of the DOM element tree
+5. An DOM element can allow a user to trigger a single context-sensitive action by clicking, or hitting enter when focused. (Some drop-downs trigger on Space for a11y reasons.)
    - Context sensitivity allows the action to be separated from the actee: e.g. the action is ‘delete’, but context is required to know it means ‘delete item X’
-6. An user can trigger a variety of actions using keyboard shortcuts;
-   - Keyboard shortcuts depend on what element is in focus (and its parents) when the key is pressed.
+6. An user can trigger a variety of actions using keyboard shortcuts
+   - THe behavior of a keyboard shortcuts depend on what DOM element is in focus (and its parents) when the key is pressed.
 7. Every action a user can take should be documented. Every hotkey should be rebindable.
 
-Types of interactive elements:
+Types of interactive DOM elements:
 
 - Buttons (Focusable, triggers action in context)
 - Links (Focusable, triggers change in URL)
@@ -165,7 +165,7 @@ As the names suggest, there is a stack of constraints; you can push consecutive 
 
 `ActionContextService.unremapAction(action)` restores the default hotkeys to an Action.
 
-All three remapping functions store bindings in localStorage by default. You must call `ActionContextService.restoreRemapping()` with no arguments to restore bindings from localStorage. 
+All three remapping functions store bindings in localStorage by default. You must call `ActionContextService.restoreRemapping()` with no arguments to restore bindings from localStorage.
 
 Use of localStorage can be overridden (e.g. to use a server instead) by using `onRemapping(callback: (remapping: Remapping[]) => void)` to set how bindings are saved whenever they change, OR by using `currentRemapping` and `restoreRemapping` to carry bindings across sessions whenever and however you like.
 
@@ -190,6 +190,6 @@ Use of localStorage can be overridden (e.g. to use a server instead) by using `o
 
 Phocus is, first and foremost, a tool I use for building products myself. I probably won't accept changes that make it less effective for me, personally.
 
-However, if you like Phocus, and want to contribute, feel free to reach out, and I'll add you to the [Vistimo](https://www.vistimo.com) project that tracks Phocus' progress. 
+However, if you like Phocus, and want to contribute, feel free to reach out, and I'll add you to the [Vistimo](https://www.vistimo.com) project that tracks Phocus' progress.
 
 Github issues are, if not welcome, accepted, and will be read eventually.
