@@ -1,12 +1,8 @@
 function getContextParent(elt: HTMLElement): HTMLElement | null {
-  const parent = elt.parentElement;
-  if (parent) {
-    if (parent.dataset.phocusContextName) {
-      return parent;
-    }
-    return getContextParent(parent);
-  }
-  return null;
+  const parent = elt.parentElement
+  if (!parent) return null;
+  if (parent.dataset.phocusContextName) return parent;
+  return getContextParent(parent);
 }
 
 // Allows elements with the same phocus-id to appear on the page, but asking to
@@ -14,17 +10,17 @@ function getContextParent(elt: HTMLElement): HTMLElement | null {
 // ancestor context.
 export function focusInContext(phocusId: string, elt?: HTMLElement) {
   const current = elt || (document.activeElement as HTMLElement);
-  const parent = getContextParent(current);
-  if (!parent) {
-    console.error(`No element found to focus with phocus-id ${phocusId}`);
-    return;
-  }
-  const find: HTMLElement | null = parent.querySelector(
+  const find: HTMLElement | null = current.querySelector(
     `[data-phocus-id="${phocusId}"]`
   );
   if (find) {
     find.focus();
   } else {
-    focusInContext(phocusId, parent);
+    const parent = getContextParent(current);
+    if (parent) {
+      focusInContext(phocusId, parent);
+    } else {
+      console.error(`No element found to focus with phocus-id ${phocusId}`);
+    }
   }
 }
