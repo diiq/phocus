@@ -185,6 +185,7 @@ Use of localStorage can be overridden (e.g. to use a server instead) by using `o
 
 `focusInContext(phocusId[, element])` will focus on an element with the attribute `data-phocus-id="[phocusId]"`; but it will focus on the element that is the nearest context sibling. That is, if such an element exists in the currently focused context, it will focus on it. Otherwise it will look for one in the parent context, then the grandparent context. This allows multiple elements on the page to have the same phocus-id, while still allowing us to focus on the meaningful one, not just the first in the DOM.
 
+`focusMomentarily(element | selector)` will focus on *any* element, even if it is not focusable; but once focus leaves that element, it will not be refocusable using tab. This is useful for single-page apps that strive to be screenreader-friendly. WHen changing routes in an SPA, screenreaders often hear nothing -- there was no page-load, so the narration says nothing. By focusing on an H1 after changing routes, you can let screenreader users know that the page has changed, and by removing the H1 from the focus rotation afterwards, you maintain expectations of what's focusable.
 
 ### Contributing
 
