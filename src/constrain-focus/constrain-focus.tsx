@@ -30,16 +30,16 @@ export class ConstrainFocus {
   };
 
   refocus(root: HTMLElement, target: Element) {
+    var focusOn = root;
     if (root.contains(target)) {
-      (target as HTMLElement).focus();
+      focusOn = target as HTMLElement
     } else {
       const focusable = root.querySelector("button, input, textarea, a, [tabindex='0']");
       if (focusable) {
-        (focusable as HTMLElement).focus();
-      } else {
-        root.focus();
+        focusOn = focusable as HTMLElement
       }
     }
+    setTimeout(() => focusOn.focus())
   }
 
   focusable(element: HTMLElement) {
