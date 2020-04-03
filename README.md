@@ -14,9 +14,9 @@ See [Vistimo](https://www.vistimo.com) for a rich and complicated use-case.
 
 ## Installing
 
-`yarn add ng-phocus` or `npm install ng-phocus`.
+`yarn add phocus` or `npm install phocus`.
 
-NgPhocus comes with typescript typings; no need to install them separately.
+Phocus comes with typescript typings; no need to install them separately.
 
 ## Basic Usage
 ### Defining the available actions: `ActionContextSevice` and `Action`
