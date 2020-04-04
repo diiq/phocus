@@ -1,11 +1,14 @@
-import { dispatch } from "./dispatch";
+import { Phocus } from "./phocus";
 import {
-  ActionContextService,
   Action,
   ContextBlueprint
-} from "../action-context/action-context";
+} from "./context-service";
+import * as jsdom from "jsdom";
 
 describe("dispatch", () => {
+  mutationObserverShim();
+  let phocus = new Phocus();
+
   let saveAction: Action = new Action({
     name: "Save project",
     shortDocumentation: "Saves the project",
@@ -22,27 +25,42 @@ describe("dispatch", () => {
     }
   };
 
-  ActionContextService.addContext("project", projectContext);
+  phocus.contexts.add("project", projectContext);
 
   it("Sets a click action for elements with data-phocus-action", () => {
     document.body.innerHTML = `
       <div data-phocus-context-name="project" data-phocus-context-argument="my-arg">
         <button id="button" data-phocus-action="save" />
       </div>`;
+    phocus.start(document.body);
+
     const button = document.getElementById("button");
-    dispatch(document.body);
     button.click();
     expect((saveAction.actOn as jest.Mock).mock.calls.length).toBe(1);
   });
 
-  it("Sets a title for elements with data-phocus-action", () => {
+  it("Sets a click action for elements that gain a data-phocus-action", () => {
+    // Button doesn't have an action to start, but phocus is watching!
     document.body.innerHTML = `
       <div data-phocus-context-name="project" data-phocus-context-argument="my-arg">
-        <button id="button" data-phocus-action="save" />
+        <button id="button" />
       </div>`;
+    phocus.start(document.body);
+
     const button = document.getElementById("button");
-    dispatch(document.body);
-    expect(button.title).toBe("Save project (Control+s)");
-    expect(button.getAttribute("aria-label")).toBe("Save project (Control+s)");
+    button.setAttribute("data-phocus-action", "save");
+
+    button.click();
+    expect((saveAction.actOn as jest.Mock).mock.calls.length).toBe(1);
   });
 });
+
+function mutationObserverShim() {
+  const dom = new jsdom.JSDOM();
+  global["window"] = dom.window;
+  global["document"] = dom.window.document;
+
+  require("mutationobserver-shim");
+
+  global["MutationObserver"] = window["MutationObserver"];
+}

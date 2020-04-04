@@ -8,7 +8,7 @@ interface StackElement {
   previousFocus: Element | null
 }
 
-export class ConstrainFocus {
+export class ConstraintService {
   stack: StackElement[] = [];
 
   start() {
@@ -51,7 +51,7 @@ export class ConstrainFocus {
     return this.stack[0] && this.stack[0].constraint();
   }
 
-  pushConstraint(root: () => HTMLElement | null) {
+  push(root: () => HTMLElement | null) {
     this.stack.unshift({
       constraint: root,
       previousFocus: document.activeElement
@@ -62,7 +62,7 @@ export class ConstrainFocus {
     this.refocus(rootE, focus);
   }
 
-  popConstraint() {
+  pop() {
     const pop = this.stack.shift();
     if (!pop || !pop.previousFocus || !(pop.previousFocus instanceof HTMLElement)) return;
     pop.previousFocus.focus();
@@ -72,5 +72,3 @@ export class ConstrainFocus {
     return this.stack.length == 0;
   }
 }
-
-export const ConstrainFocusService = new ConstrainFocus();

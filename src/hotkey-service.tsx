@@ -73,7 +73,7 @@ for (var i = 65; i < 91; i++) {
   keys[i] = [letter.toLowerCase(), letter.toUpperCase()];
 }
 
-export class HotkeyClass {
+export class HotkeyService {
   isMacLike: boolean;
 
   // TODO change map for mac/PC
@@ -122,5 +122,3 @@ export class HotkeyClass {
     return modifiers.join("") + this.keyName(key);
   }
 }
-
-export const Hotkey = new HotkeyClass();

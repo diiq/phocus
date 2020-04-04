@@ -1,9 +1,10 @@
-import { addTrigger } from "./add-trigger";
+import { DOMTriggersService } from "./dom-triggers-service";
 import {
-  ActionContextService,
+  ContextService,
   Action,
   ContextBlueprint
-} from "../action-context/action-context";
+} from "./context-service";
+import { HotkeyService } from "./hotkey-service";
 
 describe("makeTriggerable", () => {
   let saveAction: Action = new Action({
@@ -22,7 +23,9 @@ describe("makeTriggerable", () => {
     }
   };
 
-  ActionContextService.addContext("project", projectContext);
+  let contexts = new ContextService(new HotkeyService())
+  let domTriggers = new DOMTriggersService(contexts)
+  contexts.add("project", projectContext);
 
   it("Sets a click action", () => {
     document.body.innerHTML = `
@@ -30,7 +33,7 @@ describe("makeTriggerable", () => {
         <button id="button" data-phocus-action="save" />
       </div>`;
     const button = document.getElementById("button");
-    addTrigger(button);
+    domTriggers.addTrigger(button);
     button.click();
     expect((saveAction.actOn as jest.Mock).mock.calls.length).toBe(1);
   });
@@ -41,7 +44,7 @@ describe("makeTriggerable", () => {
         <button id="button" data-phocus-action="save" />
       </div>`;
     const button = document.getElementById("button");
-    addTrigger(button);
+    domTriggers.addTrigger(button);
     expect(button.title).toBe("Save project (Control+s)");
     expect(button.getAttribute("aria-label")).toBe("Save project (Control+s)");
   });
@@ -52,7 +55,7 @@ describe("makeTriggerable", () => {
         <button id="button" data-phocus-action="save" />
       </div>`;
     const button = document.getElementById("button");
-    addTrigger(button);
+    domTriggers.addTrigger(button);
     expect(button.textContent).toBe("Save project");
   });
 
@@ -62,7 +65,7 @@ describe("makeTriggerable", () => {
         <button id="button" data-phocus-action="save" data-phocus-autolabel=".label">Hello <span class="label"></span></button>
       </div>`;
     const button = document.getElementById("button");
-    addTrigger(button);
+    domTriggers.addTrigger(button);
     expect(button.textContent).toBe("Hello Save project");
   });
 
@@ -72,7 +75,7 @@ describe("makeTriggerable", () => {
         <button id="button" data-phocus-action="save">Hello</button>
       </div>`;
     const button = document.getElementById("button");
-    addTrigger(button);
+    domTriggers.addTrigger(button);
     expect(button.textContent).toBe("Hello");
   });
 });

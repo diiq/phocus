@@ -1,4 +1,4 @@
-import { Hotkey } from "../hotkey/hotkey";
+import { HotkeyService } from "./hotkey-service";
 
 export type Key = string;
 export interface Remapping {
@@ -39,7 +39,7 @@ export class ActionInContext {
     private contextName: string,
     private argument: any,
     private element: HTMLElement | undefined,
-    private service: ActionContextServiceClass
+    private service: ContextService
   ) {}
 
   get hasArgument() {
@@ -51,7 +51,7 @@ export class ActionInContext {
   }
 
   context() {
-    this.service.contexts[this.contextName];
+    this.service.allContexts[this.contextName];
   }
 }
 
@@ -100,17 +100,19 @@ export class Action {
   }
 }
 
-export class ActionContextServiceClass {
+export class ContextService {
   contextStack: ContextStackEntry[] = [];
   defaultContextStack: ContextStackEntry[] = [];
-  contexts: { [id: string]: ContextBlueprint } = {};
+  allContexts: Map<string, ContextBlueprint> = new Map();
   remappingDirty: boolean = false;
 
-  addContext(name: string, context: ContextBlueprint) {
-    if (this.contexts[name]) {
+  constructor(private hotkeyService: HotkeyService) {}
+
+  add(name: string, context: ContextBlueprint) {
+    if (this.allContexts.get(name)) {
       console.warn("Replacing existing context blueprint: ", name);
     }
-    this.contexts[name] = context;
+    this.allContexts.set(name, context);
   }
 
   addDefaultContext(name: string, argument?: any, element?: HTMLElement) {
@@ -134,7 +136,7 @@ export class ActionContextServiceClass {
   clear() {
     this.defaultContextStack = [];
     this.contextStack = [];
-    this.contexts = {};
+    this.allContexts = new Map();
     this.remappingDirty = false;
   }
 
@@ -175,8 +177,8 @@ export class ActionContextServiceClass {
 
   /** Collect all user-remapped actions so that they can be saved */
   get currentRemapping(): Remapping[] {
-    const ll = Object.keys(this.contexts).map(contextName => {
-      const context = this.contexts[contextName];
+    const ll = Array.from(this.allContexts.keys()).map(contextName => {
+      const context = this.allContexts.get(contextName);
       if (!context) return; // TODO assertion, probs
       return Object.keys(context.actions).map(actionName => {
         const action = context.actions[actionName];
@@ -204,7 +206,8 @@ export class ActionContextServiceClass {
       if (!remapping) return;
     }
     remapping.map(m => {
-      const context = this.contexts[m.context];
+      const context = this.allContexts.get(m.context);
+      if (!context) { return; }
       const action = context.actions[m.action];
       this.remapAction(action, m.mapping);
     });
@@ -264,7 +267,9 @@ export class ActionContextServiceClass {
   }
 
   private contextFor(contextEntry: ContextStackEntry) {
-    return this.contexts[contextEntry.context];
+    const context = this.allContexts.get(contextEntry.context);
+    if (!context) throw `Unable to find context for stack entry ${contextEntry}`;
+    return context;
   }
 
   actionForKeypress(key: Key) {
@@ -277,7 +282,7 @@ export class ActionContextServiceClass {
   }
 
   handleKeypress(event: KeyboardEvent) {
-    const key = Hotkey.canonicalKeyFromEvent(event);
+    const key = this.hotkeyService.canonicalKeyFromEvent(event);
     const keyAction = this.actionForKeypress(key);
     if (keyAction) {
       event.preventDefault();
@@ -311,5 +316,3 @@ export class ActionContextServiceClass {
     action.act(e);
   }
 }
-
-export const ActionContextService = new ActionContextServiceClass();

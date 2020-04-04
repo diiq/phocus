@@ -1,10 +1,11 @@
 import {
-  ActionContextService,
+  ContextService,
   Action,
   ContextBlueprint
-} from "./action-context";
+} from "./context-service";
+import { HotkeyService } from "./hotkey-service";
 
-describe("ActionContextService", () => {
+describe("this.ActionContextService", () => {
   let saveAction: Action = new Action({
     name: "Save project",
     shortDocumentation: "Saves the project",
@@ -45,10 +46,11 @@ describe("ActionContextService", () => {
   };
 
   beforeEach(() => {
-    ActionContextService.clear();
-    ActionContextService.addContext("project", projectContext);
-    ActionContextService.addContext("root", rootContext);
-    ActionContextService.addContext("opaque", opaqueContext);
+    this.ActionContextService = new ContextService(new HotkeyService())
+    this.ActionContextService.clear();
+    this.ActionContextService.add("project", projectContext);
+    this.ActionContextService.add("root", rootContext);
+    this.ActionContextService.add("opaque", opaqueContext);
   });
 
   it("Creates a stack for a dom element", () => {
@@ -56,8 +58,8 @@ describe("ActionContextService", () => {
       '<div data-phocus-context-name="project" data-phocus-context-argument="my-arg">' +
       '  <button id="button" />' +
       "</div>";
-    ActionContextService.setContext(document.getElementById("button"));
-    const stack = ActionContextService.contextStack;
+    this.ActionContextService.setContext(document.getElementById("button"));
+    const stack = this.ActionContextService.contextStack;
     expect(stack.length).toBe(1);
     expect(stack[0].context).toBe("project");
     expect(stack[0].argument).toBe("my-arg");
@@ -70,8 +72,8 @@ describe("ActionContextService", () => {
       '    <button id="button" />' +
       "  </div>" +
       "</div>";
-    ActionContextService.setContext(document.getElementById("button"));
-    const stack = ActionContextService.contextStack;
+    this.ActionContextService.setContext(document.getElementById("button"));
+    const stack = this.ActionContextService.contextStack;
     expect(stack.length).toBe(2);
     expect(stack[1].context).toBe("root");
     expect(stack[1].argument).toBe("big-arg");
@@ -84,8 +86,8 @@ describe("ActionContextService", () => {
       '    <button id="button" />' +
       "  </div>" +
       "</div>";
-    ActionContextService.setContext(document.getElementById("button"));
-    const stack = ActionContextService.contextStack;
+    this.ActionContextService.setContext(document.getElementById("button"));
+    const stack = this.ActionContextService.contextStack;
     expect(stack.length).toBe(1);
     expect(stack[0].context).toBe("root");
     expect(stack[0].argument).toBe("big-arg");
@@ -96,8 +98,8 @@ describe("ActionContextService", () => {
       "<div >" +
       '  <button id="button" data-phocus-context-name="root" data-phocus-context-argument="big-arg" />' +
       "</div>";
-    ActionContextService.setContext(document.getElementById("button"));
-    const stack = ActionContextService.contextStack;
+    this.ActionContextService.setContext(document.getElementById("button"));
+    const stack = this.ActionContextService.contextStack;
     expect(stack.length).toBe(1);
     expect(stack[0].context).toBe("root");
     expect(stack[0].argument).toBe("big-arg");
@@ -110,8 +112,8 @@ describe("ActionContextService", () => {
       '    <button id="button" />' +
       "  </div>" +
       "</div>";
-    ActionContextService.setContext(document.getElementById("button"));
-    const stack = ActionContextService.contextStack;
+    this.ActionContextService.setContext(document.getElementById("button"));
+    const stack = this.ActionContextService.contextStack;
     expect(stack.length).toBe(1);
     expect(stack[0].context).toBe("root");
     expect(stack[0].argument).toBe(undefined);
@@ -123,8 +125,8 @@ describe("ActionContextService", () => {
         '<div data-phocus-context-name="root" data-phocus-context-argument="big-arg">' +
         '    <button id="button" />' +
         "</div>";
-      ActionContextService.setContext(document.getElementById("button"));
-      const actions1 = ActionContextService.availableActions;
+      this.ActionContextService.setContext(document.getElementById("button"));
+      const actions1 = this.ActionContextService.availableActions;
       expect(actions1.length).toEqual(1);
       expect(actions1[0].action).toEqual(logoutAction);
     });
@@ -136,8 +138,8 @@ describe("ActionContextService", () => {
         '    <button id="button" />' +
         "  </div>" +
         "</div>";
-      ActionContextService.setContext(document.getElementById("button"));
-      const actions = ActionContextService.availableActions;
+      this.ActionContextService.setContext(document.getElementById("button"));
+      const actions = this.ActionContextService.availableActions;
       expect(actions.length).toEqual(2);
       expect(actions[0].action).toEqual(saveAction);
     });
@@ -149,8 +151,8 @@ describe("ActionContextService", () => {
         '    <button id="button" />' +
         "  </div>" +
         "</div>";
-      ActionContextService.setContext(document.getElementById("button"));
-      const actions = ActionContextService.availableActions;
+      this.ActionContextService.setContext(document.getElementById("button"));
+      const actions = this.ActionContextService.availableActions;
       expect(actions.length).toEqual(0);
     });
   });
@@ -161,9 +163,9 @@ describe("ActionContextService", () => {
         '<div data-phocus-context-name="root" data-phocus-context-argument="big-arg">' +
         '  <button id="button" />' +
         "</div>";
-      ActionContextService.setContext(document.getElementById("button"));
+      this.ActionContextService.setContext(document.getElementById("button"));
 
-      expect(ActionContextService.actionForKeypress("Control+s").action).toBe(
+      expect(this.ActionContextService.actionForKeypress("Control+s").action).toBe(
         logoutAction
       );
     });
@@ -175,14 +177,14 @@ describe("ActionContextService", () => {
         '    <button id="button" />' +
         "  </div>" +
         "</div>";
-      ActionContextService.setContext(document.getElementById("button"));
+      this.ActionContextService.setContext(document.getElementById("button"));
 
-      expect(ActionContextService.actionForKeypress("Control+s").action).toBe(
+      expect(this.ActionContextService.actionForKeypress("Control+s").action).toBe(
         saveAction
       );
 
       // But a command can have multiple bindings
-      expect(ActionContextService.actionForKeypress("Control+o").action).toBe(
+      expect(this.ActionContextService.actionForKeypress("Control+o").action).toBe(
         logoutAction
       );
     });
@@ -194,12 +196,12 @@ describe("ActionContextService", () => {
         '    <button id="button" />' +
         "  </div>" +
         "</div>";
-      ActionContextService.setContext(document.getElementById("button"));
+      this.ActionContextService.setContext(document.getElementById("button"));
       expect(
-        ActionContextService.actionForKeypress("Control+p")
+        this.ActionContextService.actionForKeypress("Control+p")
       ).toBeUndefined();
       expect(
-        ActionContextService.actionForKeypress("Control+o")
+        this.ActionContextService.actionForKeypress("Control+o")
       ).toBeUndefined();
     });
   });
@@ -209,27 +211,27 @@ describe("ActionContextService", () => {
       '<div data-phocus-context-name="root" data-phocus-context-argument="big-arg">' +
       '  <button id="button" />' +
       "</div>";
-    ActionContextService.setContext(document.getElementById("button"));
+    this.ActionContextService.setContext(document.getElementById("button"));
 
-    expect(ActionContextService.actionForKeypress("Control+o").action).toBe(
+    expect(this.ActionContextService.actionForKeypress("Control+o").action).toBe(
       logoutAction
     );
-    ActionContextService.remapAction(logoutAction, "Control+q");
-    expect(ActionContextService.actionForKeypress("Control+o")).toBeUndefined();
-    expect(ActionContextService.actionForKeypress("Control+q").action).toBe(
+    this.ActionContextService.remapAction(logoutAction, "Control+q");
+    expect(this.ActionContextService.actionForKeypress("Control+o")).toBeUndefined();
+    expect(this.ActionContextService.actionForKeypress("Control+q").action).toBe(
       logoutAction
     );
-    ActionContextService.remapAction(logoutAction, undefined);
+    this.ActionContextService.remapAction(logoutAction, undefined);
   });
 
   it("can collect remappings in order to save them", () => {
-    expect(ActionContextService.currentRemapping).toEqual([]);
-    ActionContextService.remapAction(logoutAction, "Control+q");
-    expect(ActionContextService.currentRemapping.length).toEqual(1);
-    expect(ActionContextService.currentRemapping[0].action).toEqual("logout");
-    expect(ActionContextService.currentRemapping[0].mapping).toEqual(
+    expect(this.ActionContextService.currentRemapping).toEqual([]);
+    this.ActionContextService.remapAction(logoutAction, "Control+q");
+    expect(this.ActionContextService.currentRemapping.length).toEqual(1);
+    expect(this.ActionContextService.currentRemapping[0].action).toEqual("logout");
+    expect(this.ActionContextService.currentRemapping[0].mapping).toEqual(
       "Control+q"
     );
-    ActionContextService.remapAction(logoutAction, undefined);
+    this.ActionContextService.remapAction(logoutAction, undefined);
   });
 });

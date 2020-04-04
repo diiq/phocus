@@ -1,14 +1,13 @@
-import { startPhocus } from "./start-phocus";
+import { Dispatch } from "./dispatch";
 import {
-  ActionContextService,
+  ContextService,
   Action,
   ContextBlueprint
-} from "../action-context/action-context";
-import * as jsdom from "jsdom";
+} from "./context-service";
+import { DOMTriggersService } from "./dom-triggers-service";
+import { HotkeyService } from "./hotkey-service";
 
 describe("dispatch", () => {
-  mutationObserverShim();
-
   let saveAction: Action = new Action({
     name: "Save project",
     shortDocumentation: "Saves the project",
@@ -25,42 +24,31 @@ describe("dispatch", () => {
     }
   };
 
-  ActionContextService.addContext("project", projectContext);
+  let context = new ContextService(new HotkeyService())
+  context.add("project", projectContext);
+
+  let triggers = new DOMTriggersService(context);
+  let dispatch = new Dispatch(triggers);
 
   it("Sets a click action for elements with data-phocus-action", () => {
     document.body.innerHTML = `
       <div data-phocus-context-name="project" data-phocus-context-argument="my-arg">
         <button id="button" data-phocus-action="save" />
       </div>`;
-    startPhocus(document.body);
-
     const button = document.getElementById("button");
+    dispatch.dispatch(document.body);
     button.click();
     expect((saveAction.actOn as jest.Mock).mock.calls.length).toBe(1);
   });
 
-  it("Sets a click action for elements that gain a data-phocus-action", () => {
-    // Button doesn't have an action to start, but phocus is watching!
+  it("Sets a title for elements with data-phocus-action", () => {
     document.body.innerHTML = `
       <div data-phocus-context-name="project" data-phocus-context-argument="my-arg">
-        <button id="button" />
+        <button id="button" data-phocus-action="save" />
       </div>`;
-    startPhocus(document.body);
-
     const button = document.getElementById("button");
-    button.setAttribute("data-phocus-action", "save");
-
-    button.click();
-    expect((saveAction.actOn as jest.Mock).mock.calls.length).toBe(1);
+    dispatch.dispatch(document.body);
+    expect(button.title).toBe("Save project (Control+s)");
+    expect(button.getAttribute("aria-label")).toBe("Save project (Control+s)");
   });
 });
-
-function mutationObserverShim() {
-  const dom = new jsdom.JSDOM();
-  global["window"] = dom.window;
-  global["document"] = dom.window.document;
-
-  require("mutationobserver-shim");
-
-  global["MutationObserver"] = window["MutationObserver"];
-}

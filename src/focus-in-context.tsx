@@ -19,6 +19,8 @@ export function focusInContext(phocusId: string, elt?: HTMLElement) {
     const parent = getContextParent(current);
     if (parent) {
       focusInContext(phocusId, parent);
+    } else if (current != document.body) {
+      focusInContext(phocusId, document.body)
     } else {
       console.error(`No element found to focus with phocus-id ${phocusId}`);
     }

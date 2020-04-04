@@ -19,6 +19,14 @@ See [Vistimo](https://www.vistimo.com) for a rich and complicated use-case.
 Phocus comes with typescript typings; no need to install them separately.
 
 ## Basic Usage
+
+```
+import { Phocus } from 'phocus';
+
+// You'll want your whole app to share just one instance of Phocus!
+const phocus = new Phocus();
+```
+
 ### Defining the available actions: `ActionContextSevice` and `Action`
 
 Phocus works because it forces you to define all the actions available to a user *separately* from the display logic of your app. That's convenient because it lets hotkey and buttons refer to the same actions -- but it also lets you document all those actions clearly for the user, and makes it possible for users to bind different hotkeys to different actions if they like.
@@ -53,14 +61,10 @@ To define actions, you also need to explain the context of those actions; "delet
 
 An ActionContext is a set of actions which are available only when focus is within a specific part of the page. An ActionContext consists of a globally unique name, help text, and a list of actions.
 
-```
-import {
-  Action,
-  ActionContextService,
-} from "phocus";
+Now define the contexts in which users can take actions. In this example, imagine a shopping cart with many products in it. Some actions can be taken for the whole cart, and some can be taken with respect to each single item:
 
-// Whenever you like, but ideally on startup, define some contexts:
-ActionContextService.addContext("cart-product-listing", {
+```
+phocus.contexts.add("cart-product-listing", {
   name: "Product",
   documentation: "A single product in your cart. You haven't bought it yet, but you're planning on it!",
 
@@ -71,12 +75,30 @@ ActionContextService.addContext("cart-product-listing", {
   opaque: false,
 
   actions: {
+    // 'checkout' is the machine-readable name of this action.
+    checkout: new Action({
+      name: "Check out",
+      shortDocumentation: "We'll ask for your payment details so you can complete your purchase.",
+      actOn: () => {
+        Cart.startCheckout()
+      },
+      defaultKeys: ["Backspace"]
+    }),
+  }
+});
+
+phocus.contexts.add("cart-product-listing", {
+  name: "Product",
+  documentation: "A single product in your cart. You haven't bought it yet, but you're planning on it!",
+  hidden: false,
+  opaque: false,
+  actions: {
     // 'delete' is the machine-readable name of this action.
     delete: new Action({
       name: "Delete",
       shortDocumentation: "Removes the product from your cart",
       actOn: (id) => {
-        CartProducts.remove(id)
+        Cart.removeProduct(id)
       },
       defaultKeys: ["Backspace"]
     }),
@@ -84,7 +106,7 @@ ActionContextService.addContext("cart-product-listing", {
       name: "Add one",
       shortDocumentation: "Add another one of this product to your cart",
       actOn: (id) => {
-        CartProducts.addOne(id)
+        Cart.addOneProduct(id)
       },
       defaultKeys: ["+"]
     }),
@@ -92,7 +114,7 @@ ActionContextService.addContext("cart-product-listing", {
       name: "Remove one",
       shortDocumentation: "Remove one of this product from your cart. If you only have one in your cart, remove the product entirely",
       actOn: (id) => {
-        CartProducts.removeOne(id)
+        cart.removeOneProduct(id)
       },
       defaultKeys: ["-"]
     })
@@ -105,15 +127,24 @@ ActionContextService.addContext("cart-product-listing", {
 Now that you've defined your actions, and the contexts they can be taken in, you can use those actions on your page:
 
 ```
-<div data-phocus-context-name="cart-product-listing" data-phocus-context-argument="55">
+<div data-phocus-context-name="cart-product-listing">
+  <div data-phocus-context-name="cart-product-listing" data-phocus-context-argument="1241">
     <button data-phocus-action="delete"></button>
     <button data-phocus-action="increase">-1</button>
     <button data-phocus-action="decrease" doNotLabel>+1</button>
   </div>
+
+  <div data-phocus-context-name="cart-product-listing" data-phocus-context-argument="5536">
+    <button data-phocus-action="delete"></button>
+    <button data-phocus-action="increase">-1</button>
+    <button data-phocus-action="decrease" doNotLabel>+1</button>
+  </div>
+
+  <button data-phocus-action="checkout"></button>
 </div>
 ```
 
-The value of the `data-phocus-context-name` attribute is the machine-readable name of the context you provided to ActionContextService.
+The value of the `data-phocus-context-name` attribute is the machine-readable name of the context you provided to `phocus.contexts`.
 
 The `data-phocus-context-argument` attribute will get passed as the first argument to all actions within this context.
 
@@ -127,24 +158,24 @@ If you don't want Phocus to automatically generate a `label` attribute, use `doN
 
 #### Nesting
 
-Contexts can be nested. Actions with the same name will shadow actions in parent contexts. Hotkeys with the same bindings will shadow one another.
+As you saw in our example, contexts can be nested. Actions with the same name will shadow actions in parent contexts. Hotkeys with the same bindings will shadow one another.
 
 If you declare a context to be `opaque: true`, the actions and hotkeys of parent contexts cannot be used within that context.
 
 ### Start your engines
 
-Finally, use `startPhocus` to make phocus start listening for actions.
+Finally, use `phocus.start` to make phocus start listening for actions.
 
 ```
 // Once the page has rendered for the first time
-startPhocus(document.body);
+phocus.start(document.body);
 
 
 // If you'd ever like phocus to stop functioning
-// stopPhocus(document.body)
+// phocus.stop(document.body)
 ```
 
-Provide `startPhocus` with a root element; phocus will not operate outside that element. This should almost always be `document.body`, to ensure it encompasses modals and other portal-y edge-cases.
+Provide `phocus.start` with a root element; phocus will not operate outside that element. This should almost always be `document.body`, to ensure it encompasses modals and other portal-y edge-cases.
 
 ## Advanced usage
 
@@ -153,13 +184,13 @@ Provide `startPhocus` with a root element; phocus will not operate outside that 
 For modals, it can be important to constrain focus, and prevent users from tabbing onto hidden elements.
 
 ```
-ConstrainFocusService.pushConstraint(() => element);
+phocus.constraints.push(() => element);
 ```
 
-`pushConstraint` takes a function that returns an element (this is useful if the element in question hasn't been rendered, or if it will change over time), and it will force the focus to remain within the children of that element until you call
+`push` takes a function that returns an element (this is useful if the element in question hasn't been rendered, or if it will change over time), and it will force the focus to remain within the children of that element until you call
 
 ```
-ConstrainFocusService.popConstraint();
+phocus.constraints.pop();
 ```
 
 As the names suggest, there is a stack of constraints; you can push consecutive constraints, and pop them one by one.
@@ -168,33 +199,33 @@ Upon popping a constraint, focus will be restored to whatever element had focus 
 
 ### Hotkey remapping
 
-`ActionContextService.currentRemapping` is a JSON object representing the current mapping of hotkeys to actions. If you store this for a user, then on subsequent visits, you can use `ActionContextService.restoreRemapping(mapping)` which takes that JSON object and restores the mapping it represents.
+`phocus.contexts.currentRemapping` is a JSON object representing the current mapping of hotkeys to actions. If you store this for a user, then on subsequent visits, you can use `phocus.contexts.restoreRemapping(mapping)` which takes that JSON object and restores the mapping it represents.
 
-`ActionContextService.remapAction(action: Action, newMapping)` takes an Action object and a key string (such as "Control+a") and customizes that action with that hotkey.
+`phocus.contexts.remapAction(action: Action, newMapping)` takes an Action object and a key string (such as "Control+a") and customizes that action with that hotkey.
 
-`ActionContextService.unmapAction(action: Action)` removes hotkeys from an Action.
+`phocus.contexts.unmapAction(action: Action)` removes hotkeys from an Action.
 
-`ActionContextService.unremapAction(action)` restores the default hotkeys to an Action.
+`phocus.contexts.unremapAction(action)` restores the default hotkeys to an Action.
 
-All three remapping functions store bindings in localStorage by default. You must call `ActionContextService.restoreRemapping()` with no arguments to restore bindings from localStorage.
+All three remapping functions store bindings in localStorage by default. You must call `phocus.contexts.restoreRemapping()` with no arguments to restore bindings from localStorage.
 
 Use of localStorage can be overridden (e.g. to use a server instead) by using `onRemapping(callback: (remapping: Remapping[]) => void)` to set how bindings are saved whenever they change, OR by using `currentRemapping` and `restoreRemapping` to carry bindings across sessions whenever and however you like.
 
 ### Other useful functions
 
-`ActionContextService.addDefaultContext(name: string, argument: any, element?: any)` sets a root context (named by name) to be available everywhere, no matter what is focused. You can add as many default contexts as you like; `ActionContextService.removeDefaultContext` takes the same arguments and removes the context from the set of defaults.
+`phocus.contexts.addDefaultContext(name: string, argument: any, element?: any)` sets a root context (named by name) to be available everywhere, no matter what is focused. You can add as many default contexts as you like; `phocus.contexts.removeDefaultContext` takes the same arguments and removes the context from the set of defaults.
 
-`ActionContextService.availableActions` changes based on the focused element on the page; it is the list of actions that could be taken in the current context, and all its parents. This is useful for generating context-sensitive documentation. Contexts with `hidden: true` will not appear in `availableActions`.
+`phocus.contexts.availableActions` changes based on the focused element on the page; it is the list of actions that could be taken in the current context, and all its parents. This is useful for generating context-sensitive documentation. Contexts with `hidden: true` will not appear in `availableActions`.
 
-`ActionContextService.contextStack` is the list of context-names, arguments, and DOM elements for the current context and all its ancestors.
+`phocus.contexts.contextStack` is the list of context-names, arguments, and DOM elements for the current context and all its ancestors.
 
-`ActionContextService.contexts` is an object describing all context blueprints.
+`phocus.contexts.allContexts` is an object describing all context blueprints.
 
-`ActionContextService.setContext(element)` will set the context to a given element, regardless of what element has focus.
+`phocus.contexts.setContext(element)` will set the context to a given element, regardless of what element has focus.
 
-`PhocusService.focusInContext(phocusId[, element])` will focus on an element with the attribute `phocusId="some-string"`; but it will focus on the element that is the nearest context sibling. That is, if such an element exists in the currently focused context, it will focus on it. Otherwise it will look for one in the parent context, then the grandparent context. This allows multiple elements on the page to have the same phocusId, while still allowing us to focus on the most contextually meaningful one, not just the first in the DOM.
+`phocus.focusInContext(phocusId[, element])` will focus on an element with the attribute `phocusId="some-string"`; but it will focus on the element that is the nearest context sibling. That is, if such an element exists in the currently focused context, it will focus on it. Otherwise it will look for one in the parent context, then the grandparent context. This allows multiple elements on the page to have the same phocusId, while still allowing us to focus on the most contextually meaningful one, not just the first in the DOM.
 
-`PhocusService.focusMomentarily(element | selector)` will focus on *any* element, even if it is not focusable; but once focus leaves that element, it will not be refocusable using tab. This is useful for single-page apps that strive to be screenreader-friendly. WHen changing routes in an SPA, screenreaders often hear nothing -- there was no page-load, so the narration says nothing. By focusing on an H1 after changing routes, you can let screenreader users know that the page has changed, and by removing the H1 from the focus rotation afterwards, you maintain expectations of what's focusable.
+`phocus.focusMomentarily(element | selector)` will focus on *any* element, even if it is not focusable; but once focus leaves that element, it will not be refocusable using tab. This is useful for single-page apps that strive to be screenreader-friendly. WHen changing routes in an SPA, screenreaders often hear nothing -- there was no page-load, so the narration says nothing. By focusing on an H1 after changing routes, you can let screenreader users know that the page has changed, and by removing the H1 from the focus rotation afterwards, you maintain expectations of what's focusable.
 
 
 ## Philosophy

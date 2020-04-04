@@ -1,13 +1,11 @@
 export {
   Action,
-  ActionContextService,
+  ContextService as ActionContextServiceClass,
   ContextBlueprint,
   ContextStackEntry,
   ActionEvent,
   Key
-} from "./action-context/action-context";
-export { Hotkey } from "./hotkey/hotkey";
-export { ConstrainFocusService } from "./constrain-focus/constrain-focus";
-export { startPhocus, stopPhocus } from "./dom-manipulation/start-phocus";
-export { focusInContext } from './dom-manipulation/focus-in-context';
-export { focusMomentarily } from './dom-manipulation/focus-momentarily';
+} from "./context-service";
+export { HotkeyService } from "./hotkey-service";
+export { ConstraintService as ConstrainFocusServiceClass } from "./constraints-service";
+export { Phocus } from "./phocus";
