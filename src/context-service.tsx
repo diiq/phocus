@@ -42,10 +42,6 @@ export class ActionInContext {
     private service: ContextService
   ) {}
 
-  get hasArgument() {
-    return !!this.argument;
-  }
-
   act(e?: ActionEvent) {
     return this.action.actOn(this.argument, this.element, e);
   }
@@ -254,22 +250,15 @@ export class ContextService {
 
   private actionsFromContext(contextEntry: ContextStackEntry) {
     let context = this.contextFor(contextEntry);
+    if (!context) return [];
     let actionsByName = context.actions;
     return Object.keys(actionsByName).map(name => {
-      return new ActionInContext(
-        actionsByName[name],
-        contextEntry.context,
-        contextEntry.argument,
-        contextEntry.element,
-        this
-      );
+      return this.actionForName(name, contextEntry);
     });
   }
 
   private contextFor(contextEntry: ContextStackEntry) {
-    const context = this.allContexts.get(contextEntry.context);
-    if (!context) throw `Unable to find context for stack entry ${contextEntry}`;
-    return context;
+    return this.allContexts.get(contextEntry.context);
   }
 
   actionForKeypress(key: Key) {
@@ -291,13 +280,14 @@ export class ContextService {
     }
   }
 
-  actionForName(name: string) {
-    const contextEntry = this.currentStackWithDefaults.find(c => {
+  actionForName(name: string, inContextEntry?: ContextStackEntry) {
+    const contextEntry = inContextEntry || this.currentStackWithDefaults.find(c => {
       const context = this.contextFor(c);
       return context && name in context.actions;
     });
-    if (!contextEntry) return;
+    if (!contextEntry) throw `Unable to find context entry in current stack: ${name}, ${contextEntry}`;
     const context = this.contextFor(contextEntry);
+    if (!context) throw "Unable to find context in current entry.";
     return new ActionInContext(
       context.actions[name],
       contextEntry.context,

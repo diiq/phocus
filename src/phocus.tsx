@@ -1,4 +1,4 @@
-import { ContextService } from "./context-service";
+import { ContextService, ActionEvent } from "./context-service";
 import { Dispatch } from "./dispatch";
 import { DOMTriggersService } from "./dom-triggers-service";
 import { ConstraintService } from "./constraints-service";
@@ -69,6 +69,7 @@ export class Phocus {
     document.addEventListener("keydown", this.keydown);
     document.addEventListener("mousemove", setMoving);
     this.observer = new MutationObserver(this.observe);
+    this.contexts.restoreRemapping();
     this.observer.observe(elt, {
       childList: true,
       subtree: true,
@@ -85,5 +86,9 @@ export class Phocus {
     document.removeEventListener("mousemove", setMoving);
     this.observer.disconnect();
     this.constraints.stop();
+  }
+
+  triggerAction(name: string, event?: ActionEvent) {
+    this.contexts.triggerAction(name, event);
   }
 }

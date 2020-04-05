@@ -1,4 +1,4 @@
-import { ContextService } from "context-service";
+import { ContextService } from "./context-service";
 
 export class DOMTriggersService {
   constructor(private actionContextService: ContextService) {}
