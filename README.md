@@ -20,7 +20,7 @@ Phocus comes with typescript typings; no need to install them separately.
 
 ## Basic Usage
 
-```
+```js
 import { Phocus } from 'phocus';
 
 // You'll want your whole app to share just one instance of Phocus!
@@ -33,7 +33,7 @@ Phocus works because it forces you to define all the actions available to a user
 
 Each action has a name, help text, default hot keys, and an implementation.
 
-```
+```js
 import { Action } from "phocus";
 
 new Action({
@@ -63,7 +63,7 @@ An ActionContext is a set of actions which are available only when focus is with
 
 Now define the contexts in which users can take actions. In this example, imagine a shopping cart with many products in it. Some actions can be taken for the whole cart, and some can be taken with respect to each single item:
 
-```
+```js
 phocus.contexts.add("cart-product-listing", {
   name: "Product",
   documentation: "A single product in your cart. You haven't bought it yet, but you're planning on it!",
@@ -126,7 +126,7 @@ phocus.contexts.add("cart-product-listing", {
 
 Now that you've defined your actions, and the contexts they can be taken in, you can use those actions on your page:
 
-```
+```html
 <div data-phocus-context-name="cart-product-listing">
   <div data-phocus-context-name="cart-product-listing" data-phocus-context-argument="1241">
     <button data-phocus-action="delete"></button>
@@ -166,7 +166,7 @@ If you declare a context to be `opaque: true`, the actions and hotkeys of parent
 
 Finally, use `phocus.start` to make phocus start listening for actions.
 
-```
+```js
 // Once the page has rendered for the first time
 phocus.start(document.body);
 
@@ -183,13 +183,13 @@ Provide `phocus.start` with a root element; phocus will not operate outside that
 
 For modals, it can be important to constrain focus, and prevent users from tabbing onto hidden elements.
 
-```
+```js
 phocus.constraints.push(() => element);
 ```
 
 `push` takes a function that returns an element (this is useful if the element in question hasn't been rendered, or if it will change over time), and it will force the focus to remain within the children of that element until you call
 
-```
+```js
 phocus.constraints.pop();
 ```
 
