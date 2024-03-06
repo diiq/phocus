@@ -1,5 +1,5 @@
 var moving = false;
-var timeout: NodeJS.Timer | null = null;
+var timeout: number | null = null;
 export function setMoving() {
   moving = true;
 
@@ -8,7 +8,7 @@ export function setMoving() {
     timeout = null;
   }
 
-  timeout = setTimeout(() => {
+  timeout = window.setTimeout(() => {
     moving = false;
     timeout = null;
   }, 250);

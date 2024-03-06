@@ -32,7 +32,7 @@ describe("makeTriggerable", () => {
       <div data-phocus-context-name="project" data-phocus-context-argument="my-arg">
         <button id="button" data-phocus-action="save" />
       </div>`;
-    const button = document.getElementById("button");
+    const button = document.getElementById("button")!;
     domTriggers.addTrigger(button);
     button.click();
     expect((saveAction.actOn as jest.Mock).mock.calls.length).toBe(1);
@@ -43,7 +43,7 @@ describe("makeTriggerable", () => {
       <div data-phocus-context-name="project" data-phocus-context-argument="my-arg">
         <button id="button" data-phocus-action="save" />
       </div>`;
-    const button = document.getElementById("button");
+    const button = document.getElementById("button")!;
     domTriggers.addTrigger(button);
     expect(button.title).toBe("Save project (Control+s)");
     expect(button.getAttribute("aria-label")).toBe("Save project (Control+s)");
@@ -54,7 +54,7 @@ describe("makeTriggerable", () => {
       <div data-phocus-context-name="project" data-phocus-context-argument="my-arg">
         <button id="button" data-phocus-action="save" />
       </div>`;
-    const button = document.getElementById("button");
+    const button = document.getElementById("button")!;
     domTriggers.addTrigger(button);
     expect(button.textContent).toBe("Save project");
   });
@@ -64,7 +64,7 @@ describe("makeTriggerable", () => {
       <div data-phocus-context-name="project" data-phocus-context-argument="my-arg">
         <button id="button" data-phocus-action="save" data-phocus-autolabel=".label">Hello <span class="label"></span></button>
       </div>`;
-    const button = document.getElementById("button");
+    const button = document.getElementById("button")!;
     domTriggers.addTrigger(button);
     expect(button.textContent).toBe("Hello Save project");
   });
@@ -74,7 +74,7 @@ describe("makeTriggerable", () => {
       <div data-phocus-context-name="project" data-phocus-context-argument="my-arg">
         <button id="button" data-phocus-action="save">Hello</button>
       </div>`;
-    const button = document.getElementById("button");
+    const button = document.getElementById("button")!;
     domTriggers.addTrigger(button);
     expect(button.textContent).toBe("Hello");
   });

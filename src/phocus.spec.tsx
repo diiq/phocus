@@ -3,7 +3,6 @@ import {
   Action,
   ContextBlueprint
 } from "./context-service";
-import * as jsdom from "jsdom";
 
 describe("dispatch", () => {
   mutationObserverShim();
@@ -34,7 +33,7 @@ describe("dispatch", () => {
       </div>`;
     phocus.start(document.body);
 
-    const button = document.getElementById("button");
+    const button = document.getElementById("button")!;
     button.click();
     expect((saveAction.actOn as jest.Mock).mock.calls.length).toBe(1);
   });
@@ -47,7 +46,7 @@ describe("dispatch", () => {
       </div>`;
     phocus.start(document.body);
 
-    const button = document.getElementById("button");
+    const button = document.getElementById("button")!;
     button.setAttribute("data-phocus-action", "save");
 
     button.click();
@@ -56,10 +55,6 @@ describe("dispatch", () => {
 });
 
 function mutationObserverShim() {
-  const dom = new jsdom.JSDOM();
-  global["window"] = dom.window;
-  global["document"] = dom.window.document;
-
   require("mutationobserver-shim");
 
   global["MutationObserver"] = window["MutationObserver"];

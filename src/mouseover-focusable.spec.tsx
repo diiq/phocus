@@ -6,7 +6,7 @@ describe("makeMouseoverFocusable", () => {
     <div>
       <div id="button" />
     </div>`;
-    const button = document.getElementById("button");
+    const button = document.getElementById("button")!;
     makeMouseoverFocusable(button);
     expect(button.tabIndex).toBe(0);
   });
@@ -16,7 +16,7 @@ describe("makeMouseoverFocusable", () => {
     <div>
       <button id="button" tabindex="-1" />
     </div>`;
-    const button = document.getElementById("button");
+    const button = document.getElementById("button")!;
     makeMouseoverFocusable(button);
     expect(button.tabIndex).toBe(-1);
   });
@@ -27,7 +27,7 @@ describe("makeMouseoverFocusable", () => {
       <button data-phocus-on-mouseover="true" id="button" />
     </div>`;
     const oldFocus = document.activeElement
-    const button = document.getElementById("button");
+    const button = document.getElementById("button")!;
     makeMouseoverFocusable(button);
     const mouseoverEvent = new Event("mouseenter");
     button.dispatchEvent(mouseoverEvent);
@@ -40,7 +40,7 @@ describe("makeMouseoverFocusable", () => {
       <button data-phocus-on-mouseover="true" id="button" />
     </div>`;
     setMoving();
-    const button = document.getElementById("button");
+    const button = document.getElementById("button")!;
     makeMouseoverFocusable(button);
     const mouseoverEvent = new Event("mouseenter");
     button.dispatchEvent(mouseoverEvent);

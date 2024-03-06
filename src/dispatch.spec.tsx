@@ -35,7 +35,7 @@ describe("dispatch", () => {
       <div data-phocus-context-name="project" data-phocus-context-argument="my-arg">
         <button id="button" data-phocus-action="save" />
       </div>`;
-    const button = document.getElementById("button");
+    const button = document.getElementById("button")!;
     dispatch.dispatch(document.body);
     button.click();
     expect((saveAction.actOn as jest.Mock).mock.calls.length).toBe(1);
@@ -46,7 +46,7 @@ describe("dispatch", () => {
       <div data-phocus-context-name="project" data-phocus-context-argument="my-arg">
         <button id="button" data-phocus-action="save" />
       </div>`;
-    const button = document.getElementById("button");
+    const button = document.getElementById("button")!;
     dispatch.dispatch(document.body);
     expect(button.title).toBe("Save project (Control+s)");
     expect(button.getAttribute("aria-label")).toBe("Save project (Control+s)");

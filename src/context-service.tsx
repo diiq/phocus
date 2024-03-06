@@ -47,14 +47,14 @@ export class ActionInContext {
   }
 
   context() {
-    this.service.allContexts[this.contextName];
+    this.service.allContexts.get(this.contextName);
   }
 }
 
 // An action is anything you can do in a given context. It can be mapped to a
 // keyboard shortcut.
 export class Action {
-  remappedKey: Key | null = null;
+  remappedKey: Key | undefined;
   name: string;
   shortDocumentation: string | undefined;
   searchTerms: string[];
@@ -72,7 +72,7 @@ export class Action {
     defaultKeys: Key[];
     hidden?: boolean;
   }) {
-    this.remappedKey = null;
+    this.remappedKey = undefined;
     this.name = description.name;
     this.shortDocumentation = description.shortDocumentation;
     this.searchTerms = description.searchTerms || [];
@@ -154,14 +154,14 @@ export class ContextService {
   }
 
   /** Give a user-specific key command for an action. */
-  remapAction(action: Action, newMapping: Key) {
+  remapAction(action: Action, newMapping?: Key) {
     action.remappedKey = newMapping;
     this.onRemappingCallback(this.currentRemapping);
   }
 
   /** Remove a user-specific key command for an action. */
   unremapAction(action: Action) {
-    action.remappedKey = null;
+    action.remappedKey = undefined;
     this.onRemappingCallback(this.currentRemapping);
   }
 

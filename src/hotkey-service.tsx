@@ -1,4 +1,4 @@
-const keys = {
+const keys: {[key: number]: [string, string]} = {
   3: ["Cancel", "Cancel"],
   6: ["Help", "Help"],
   8: ["Backspace", "Backspace"],
@@ -77,7 +77,7 @@ export class HotkeyService {
   isMacLike: boolean;
 
   // TODO change map for mac/PC
-  displayMap = {
+  displayMap: {[key: string]: string} = {
     Alt: "Alt+",
     Meta: "\u2318+",
     OS: "\u229E+",
