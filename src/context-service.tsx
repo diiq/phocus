@@ -138,7 +138,12 @@ export class ContextService {
 
   private getContextStack(elt: HTMLElement | null): ContextStackEntry[] {
     if (!elt) return [];
-    let stack = this.getContextStack(elt.parentElement);
+    let parent = elt.parentElement;
+    if (elt.dataset.phocusParent) {
+        parent = document.getElementById(elt.dataset.phocusParent);
+    }
+    
+    let stack = this.getContextStack(parent);
     if (elt.dataset.phocusContextName) {
       stack.unshift({
         context: elt.dataset.phocusContextName,
